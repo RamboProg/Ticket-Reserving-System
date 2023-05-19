@@ -1,0 +1,170 @@
+-- SQLBook: Code
+CREATE TABLE admin_create_route(
+    aid integer NOT NULL,
+    rid integer NOT NULL,
+    PRIMARY KEY(aid,rid),
+    CONSTRAINT admin_create_route_aid_fkey FOREIGN key(aid) REFERENCES system_admin(user_id),${snap}CONSTRAINT admin_create_route_rid_fkey FOREIGN key(rid) REFERENCES routes(route_id)
+);
+
+CREATE TABLE requests{
+    rid int,
+    userID int,
+    PRIMARY KEY (rid, userID),
+    UNIQUE(rid),
+    FOREIGN KEY (userID) REFERENCES System_user(user_id) 
+}
+
+CREATE TABLE admin_create_stations(
+    aid integer NOT NULL,
+    s_id integer NOT NULL,
+    PRIMARY KEY(aid,s_id),
+    CONSTRAINT admin_create_stations_aid_fkey FOREIGN key(aid) REFERENCES system_admin(user_id),${snap}CONSTRAINT admin_create_stations_s_id_fkey FOREIGN key(s_id) REFERENCES station(station_id)
+);
+
+
+CREATE TABLE admin_delete_route(
+    aid integer NOT NULL,
+    rid integer NOT NULL,
+    PRIMARY KEY(aid,rid),
+    CONSTRAINT admin_delete_route_aid_fkey FOREIGN key(aid) REFERENCES system_admin(user_id),${snap}CONSTRAINT admin_delete_route_rid_fkey FOREIGN key(rid) REFERENCES routes(route_id)
+);
+
+CREATE TABLE admin_delete_stations(
+    aid integer NOT NULL,
+    s_id integer NOT NULL,
+    PRIMARY KEY(aid,s_id),
+    CONSTRAINT admin_delete_stations_aid_fkey FOREIGN key(aid) REFERENCES system_admin(user_id),${snap}CONSTRAINT admin_delete_stations_s_id_fkey FOREIGN key(s_id) REFERENCES station(station_id)
+);
+
+CREATE TABLE admin_update_route(
+    aid integer NOT NULL,
+    rid integer NOT NULL,
+    PRIMARY KEY(aid,rid),
+    CONSTRAINT admin_update_route_aid_fkey FOREIGN key(aid) REFERENCES system_admin(user_id),${snap}CONSTRAINT admin_update_route_rid_fkey FOREIGN key(rid) REFERENCES routes(route_id)
+);
+
+
+CREATE TABLE admin_update_stations(
+    aid integer NOT NULL,
+    s_id integer NOT NULL,
+    PRIMARY KEY(aid,s_id),
+    CONSTRAINT admin_update_stations_aid_fkey FOREIGN key(aid) REFERENCES system_admin(user_id),${snap}CONSTRAINT admin_update_stations_s_id_fkey FOREIGN key(s_id) REFERENCES station(station_id)
+);
+
+CREATE TABLE completed(
+    ticket_id integer NOT NULL,
+    dest character varying(50),
+    dep character varying(50),
+    price numeric,
+    wa2t time without time zone,
+    PRIMARY KEY(ticket_id),
+    CONSTRAINT completed_ticket_id_fkey FOREIGN key(ticket_id) REFERENCES ticket(ticket_id)
+);
+
+CREATE TABLE normal_buys_online(
+    user_id integer NOT NULL,
+    sub_id integer NOT NULL,
+    PRIMARY KEY(user_id,sub_id),
+    CONSTRAINT normal_buys_online_user_id_fkey FOREIGN key(user_id) REFERENCES system_user(user_id),${snap}CONSTRAINT normal_buys_online_sub_id_fkey FOREIGN key(sub_id) REFERENCES subscriptions(subid)
+);
+
+CREATE TABLE normal_buys_ticket(
+    user_id integer NOT NULL,
+    ticket_id integer NOT NULL,
+    issenior boolean NOT NULL,
+    PRIMARY KEY(user_id,ticket_id),
+    CONSTRAINT normal_buys_ticket_user_id_fkey FOREIGN key(user_id) REFERENCES system_user(user_id),${snap}CONSTRAINT normal_buys_ticket_ticket_id_fkey FOREIGN key(ticket_id) REFERENCES ticket(ticket_id)
+);
+
+CREATE TABLE normal_user(
+    user_id SERIAL NOT NULL,
+    email character varying(255) NOT NULL,
+    password character varying(255) NOT NULL,
+    PRIMARY KEY(user_id,email),
+    CONSTRAINT normal_user_user_id_fkey FOREIGN key(user_id) REFERENCES system_user(user_id),${snap}CONSTRAINT normal_user_email_fkey FOREIGN key(email) REFERENCES system_user(email)
+);
+
+CREATE TABLE ride(
+    ride_id SERIAL NOT NULL,
+    ticket_id integer NOT NULL,
+    dest character varying(50),
+    dep character varying(50),
+    price numeric,
+    wa2t time without time zone,
+    PRIMARY KEY(ticket_id),
+    CONSTRAINT ride_ticket_id_fkey FOREIGN key(ticket_id) REFERENCES ticket(ticket_id)
+);
+CREATE UNIQUE INDEX ride_ride_id_key ON "ride" USING btree ("ride_id");
+
+
+CREATE TABLE ride_has_ticket(
+    ride_id integer NOT NULL,
+    ticket_id integer NOT NULL,
+    PRIMARY KEY(ride_id,ticket_id),
+    CONSTRAINT ride_has_ticket_ride_id_fkey FOREIGN key(ride_id) REFERENCES ride(ride_id),${snap}CONSTRAINT ride_has_ticket_ticket_id_fkey FOREIGN key(ticket_id) REFERENCES ticket(ticket_id)
+);
+
+CREATE TABLE routes(
+    route_id integer NOT NULL,
+    PRIMARY KEY(route_id)
+);
+
+CREATE TABLE station(
+    station_id integer NOT NULL,
+    PRIMARY KEY(station_id)
+);
+
+CREATE TABLE subscriptions(
+    subid integer NOT NULL,
+    annualid integer NOT NULL,
+    monthlyid integer NOT NULL,
+    quarterlyid integer NOT NULL,
+    PRIMARY KEY(subid)
+);
+
+CREATE TABLE system_admin(
+    user_id integer NOT NULL,
+    email character varying(255) NOT NULL,
+    password character varying(255) NOT NULL,
+    PRIMARY KEY(user_id,email),
+    CONSTRAINT system_admin_user_id_fkey FOREIGN key(user_id) REFERENCES system_user(user_id),${snap}CONSTRAINT system_admin_email_fkey FOREIGN key(email) REFERENCES system_user(email)
+);
+CREATE UNIQUE INDEX system_admin_user_id_key ON "system_admin" USING btree ("user_id");
+${snap}CREATE UNIQUE INDEX system_admin_email_key ON "system_admin" USING btree ("email");
+
+
+CREATE TABLE system_admin(
+    user_id integer NOT NULL,
+    email character varying(255) NOT NULL,
+    password character varying(255) NOT NULL,
+    PRIMARY KEY(user_id,email),
+    CONSTRAINT system_admin_user_id_fkey FOREIGN key(user_id) REFERENCES system_user(user_id),${snap}CONSTRAINT system_admin_email_fkey FOREIGN key(email) REFERENCES system_user(email)
+);
+CREATE UNIQUE INDEX system_admin_user_id_key ON "system_admin" USING btree ("user_id");
+${snap}CREATE UNIQUE INDEX system_admin_email_key ON "system_admin" USING btree ("email");
+
+
+CREATE TABLE system_user(
+    user_id SERIAL NOT NULL,
+    email character varying(255) NOT NULL,
+    password character varying(255) NOT NULL,
+    PRIMARY KEY(user_id,email)
+);
+CREATE UNIQUE INDEX system_user_user_id_key ON "system_user" USING btree ("user_id");
+${snap}CREATE UNIQUE INDEX system_user_email_key ON "system_user" USING btree ("email");
+
+CREATE TABLE ticket(
+    ticket_id integer NOT NULL,
+    PRIMARY KEY(ticket_id)
+);
+
+CREATE TABLE uncompleted(
+    ticket_id integer NOT NULL,
+    dest character varying(50),
+    dep character varying(50),
+    price numeric,
+    wa2t time without time zone,
+    refundable boolean,
+    PRIMARY KEY(ticket_id),
+    CONSTRAINT uncompleted_ticket_id_fkey FOREIGN key(ticket_id) REFERENCES ticket(ticket_id)
+);
