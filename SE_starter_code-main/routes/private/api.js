@@ -110,5 +110,26 @@ module.exports = function (app) {
   
   
   }); 
+// This bitch
+  app.post("/api/v1/route", async(req,res)=>{
+    try{
+    const {newStationID,ConnectedStationId,routeName} =req.params;
+    let newRoute =
+    {
+      routename:routeName,
+      fromStationid: ConnectedStationId,
+      toStationid : newStationID
+    }
+    const addedRoute = await db("se_project.routes").insert(newRoute).returning("*");
+    console.log(addedRoute);
+    return res.status(201).json(newRoute);
+  }catch(err){
+    console.log("Error message", err.message);
+    return res.status(400).send(err.message);
+  }
+
+
+  });
+
 };
 
