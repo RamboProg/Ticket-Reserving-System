@@ -1,8 +1,11 @@
+import {} from 'knex';
+import db from './connectors/db';
 const path = require('path');
 const express = require('express');
 const app = express();
 const authMiddleware = require('./middleware/auth');
 const privateApiRoutes = require('./routes/private/api');
+
 const publicApiRoutes = require('./routes/public/api');
 const publicViewRoutes = require('./routes/public/view');
 const privateViewRoutes = require('./routes/private/view');
@@ -31,6 +34,60 @@ publicApiRoutes(app);// uncomment
 // uncomment to view frontend
 // privateViewRoutes(app);
 privateApiRoutes(app);
+
+
+//Rambo's Tasks------------------------------------------------------------------------------------------------------------------------------
+//POST for tickets new subscription
+app.post('/api/v1/tickets/purchase/subscription',async (req, res) => {
+  const{subID, origin, destination, tripDate} = req.body;
+  console.log(req.body);
+  let newSub = {
+    subID,
+    origin,
+    destination,
+    tripDate
+  };
+  const addedSub = await db('subscriptions').insert(newSub).returning('*');
+  console.log(addedSub);
+  return res.status(200).json(addedSub);
+});
+
+//POST for prices
+app.post('/api/v1/tickets/price/:originId&:destinationId',async (req, res) => {
+  const{originId, destinationId} = req.params;
+  console.log(req.params);
+  const price = await db('prices').where({originId, destinationId}).select('price');
+  console.log(price);
+  return res.status(200).json(price);
+});
+
+//POST for rides
+
+//POST for request refunds
+app.post('/api/v1/refund/:ticketId',async (req, res) => {
+  const{ticketId} = req.params;
+  console.log(req.params);
+  const refund = await db('tickets').where({ticketId}).update({status: "Refunded"});
+  console.log(refund);
+  return res.status(200).json(refund);
+});
+
+//POST for request senior
+app.post('/api/v1/senior/request',async (req, res) => {
+  const{nationalId} = req.body;
+  console.log(req.body);
+  const senior = await db('seniors').where({nationalId}).select('*');
+  console.log(senior);
+  return res.status(200).json(senior);
+});
+
+//PUT for rides simulation
+app.put('/api/v1/ride/simulate',async (req, res) => {
+  const{origin, destination, tripDate} = req.body;
+  const{rideID} = req.params;
+  const simulatedRide = await db('rides').where("id", rideID).returning('*');
+  return res.status(200).json(simulatedRide);
+});
 
 // If request doesn't match any of the above routes then render the 404 page
 app.use(function(req, res, next) {
