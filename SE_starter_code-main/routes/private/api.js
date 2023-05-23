@@ -67,7 +67,6 @@ module.exports = function (app) {
     try{
       const{stationName} = req.body;
       let newStation = {
-        id,
         stationname: stationName,
         stationtype: "Noraml",
         stationposition: null,
@@ -100,7 +99,18 @@ module.exports = function (app) {
     try{
       const {StationId} =req.params;
       const selectedStation = db.select('*').from ("se_project.station").where("id",StationID);
-      if(selectedStation.)
+      const selectedStationfrom = db.select("*").from("se_project.routes").where("fromStationid",StationId);
+      const selectedStationto = db.select("*").from("se_project.routes").where("toStationid",StationId);
+
+
+      // continue this later 
+      if(selectedStation.stationposition =="start"){
+          selectedStationStart.toStationid.stationposition = "start";
+
+      }else if(selectedStation.stationposition=="middle"){
+        sele
+
+      }else{}
       const deletedStation = await db ("se_project.stations").where("id",StationId).del().returning('*');
 
       console.log("Deleted", deletedStation);
@@ -113,7 +123,7 @@ module.exports = function (app) {
   
   
   }); 
-// This bitch
+
   app.post("/api/v1/route", async(req,res)=>{
     try{
     const {newStationID,ConnectedStationId,routeName} =req.params;
@@ -133,6 +143,60 @@ module.exports = function (app) {
 
 
   });
+// mariam part 
+app.post("/api/v1/payment/subscription",async(req,res)=>{
+  try{
+    //subscription
+    const{purchasedId,creditCardNumber,holderName,payedAmount,subType,zoneId}= req.body;
+    const user=getUser(req);
+    let sub={
+      subtype:subType,
+      zoneid:zoneId,
+      userid:user.id,
+    }
+    let transaction={
+      amount:payedAmount,
+      userid:user.id,
+      purchasedIid:purchasedId,
+    }
 
+    const subscriptionlol=await db("se_project.subsription").insert(sub).returning("*");
+    const transactionlol=await db("se_project.transactions").insert(transaction).returning("*");
+    console.log(subscriptionlol);
+    console.log(transactionlol);
+    return res.status(201).json(subscriptionlol)+ res.status(201).json(transactionlol);
+
+    //transaction
+    
+  }catch(err){
+    console.log("Error message",err.message);
+    return res.status(400).send (err.message);
+  }
+});
+app.post("/api/v1/payment/ticket",async(req,res)=>{
+  try{
+    const{purchasedId,creditCardNumber,holderName,payedAmount,origin,destination,tripDate}=req.body;
+    const user=getUser(req);
+    let ticket={
+      origin,
+      destination,
+      user:user.id,
+      tripdate:tripDate,
+    }
+    let transaction={
+      amount:payedAmount,
+      userid:user.id,
+      purchasedIid:purchasedId,
+    }
+    const ticketlol=await db("se_project.tickets").insert(ticket).returning("*");
+    const transactionlol=await db("se_project.transactions").insert(transaction).returning("*");
+    console.log(ticketlol);
+    console.log(transactionlol);
+    return res.status(201).json(ticketlol)+ res.status(201).json(transactionlol);
+  }
+  catch(err){
+    console.log("Error message",err.message);
+    return res.status(400).send (err.message);
+  }
+});
 };
-
