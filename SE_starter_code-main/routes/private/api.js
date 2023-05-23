@@ -202,4 +202,33 @@ app.post("/api/v1/payment/ticket",async(req,res)=>{
     return res.status(400).send (err.message);
   }
 });
+
+app.put("/api/v1/password/reset",async(req,res)=>{
+  try{
+    const{password}= req.body;
+    const{userid} = req.params;
+    const updatedpassowrd = await db("se_project.users");
+    where("id",userid)
+    .update({password:password})
+    .returning('*');
+    return res.status(200).json(updatedpassowrd);
+    
+  }catch(err){
+    console.log("eror message", err.message);
+    return res.status(400).send("Couldnt rest password");
+  
+  }
+});
+
+// ask donia
+app.get("/api/v1/zones",async(req,res)=>{
+  try{
+    const zones =await db.select('*').from("se_project.zones");
+    return res.status(200).json(zones);
+  }
+  catch(err){
+    console.log("error message", err.message);
+    return res.status(400).send("failed to select zones");
+  }
+});
 };
