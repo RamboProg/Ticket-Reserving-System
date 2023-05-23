@@ -101,21 +101,24 @@ module.exports = function (app) {
       const selectedStation = db.select('*').from ("se_project.station").where("id",StationID);
       const selectedStationfrom = db.select("*").from("se_project.routes").where("fromStationid",StationId);
       const selectedStationto = db.select("*").from("se_project.routes").where("toStationid",StationId);
-
-
-      // continue this later 
-      if(selectedStation.stationposition =="start"){
+      if(selectedStation.length > 0){
+        
+        
+        
+        // continue this later 
+        if(selectedStation[0].stationposition =="start"){
           selectedStationStart.toStationid.stationposition = "start";
-
-      }else if(selectedStation.stationposition=="middle"){
-        sele
-
-      }else{}
-      const deletedStation = await db ("se_project.stations").where("id",StationId).del().returning('*');
-
-      console.log("Deleted", deletedStation);
-      return res.status(200).json(deletedStation);
-  
+          
+        }else if(selectedStation[0].stationposition=="middle"){
+          sele
+          
+        }else{}
+      }
+        const deletedStation = await db ("se_project.stations").where("id",StationId).del().returning('*');
+        
+        console.log("Deleted", deletedStation);
+        return res.status(200).json(deletedStation);
+        
     }catch(err){
       console.log("Error message ",err.message);
       return res.status(400).send("Failed to deleted station");
