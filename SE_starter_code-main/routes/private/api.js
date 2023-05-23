@@ -99,8 +99,10 @@ module.exports = function (app) {
   app.delete("/api/v1/station/:stationId", async(req,res)=>{
     try{
       const {StationId} =req.params;
-      
+      const selectedStation = db.select('*').from ("se_project.station").where("id",StationID);
+      if(selectedStation.)
       const deletedStation = await db ("se_project.stations").where("id",StationId).del().returning('*');
+
       console.log("Deleted", deletedStation);
       return res.status(200).json(deletedStation);
   
