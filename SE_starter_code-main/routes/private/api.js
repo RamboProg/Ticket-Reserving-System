@@ -47,7 +47,7 @@ module.exports = function (app) {
     }
    
   });
-  // this thing
+  
   app.put("/api/v1/password/reset",async(req,res)=>{
     try{
       const {newpassword}= req.body;
@@ -62,7 +62,7 @@ module.exports = function (app) {
       return res.status(400).send("Could not update password");
     }
   });
-  // still not sure about this shit
+  
   app.post("/api/v1/station",async(req,res)=>{
     try{
       const{stationName} = req.body;
@@ -98,9 +98,7 @@ module.exports = function (app) {
   app.delete("/api/v1/station/:stationId", async(req,res)=>{
     try{
       const {StationId} =req.params;
-      const selectedStation = db.select('*').from ("se_project.station").where("id",StationID);
-      const selectedStationfrom = db.select("*").from("se_project.routes").where("fromStationid",StationId);
-      const selectedStationto = db.select("*").from("se_project.routes").where("toStationid",StationId);
+      
       if(selectedStation.length > 0){
         
         
@@ -151,11 +149,21 @@ app.post("/api/v1/payment/subscription",async(req,res)=>{
   try{
     //subscription
     const{purchasedId,creditCardNumber,holderName,payedAmount,subType,zoneId}= req.body;
-    const user=getUser(req);
+    const user= await getUser(req);
+    const NumberofTickets=0;
+    if (subType=="annual"){
+      NumberofTickets=100;
+
+    }else if(subType=="quarterly"){
+      NumberofTickets=50;
+    }else{
+      NumberofTickets=10;
+    }
     let sub={
       subtype:subType,
       zoneid:zoneId,
       userid:user.id,
+      NumberofTickets:NumberofTickets,
     }
     let transaction={
       amount:payedAmount,
@@ -169,7 +177,7 @@ app.post("/api/v1/payment/subscription",async(req,res)=>{
     console.log(transactionlol);
     return res.status(201).json(subscriptionlol)+ res.status(201).json(transactionlol);
 
-    //transaction
+    
     
   }catch(err){
     console.log("Error message",err.message);
@@ -178,8 +186,15 @@ app.post("/api/v1/payment/subscription",async(req,res)=>{
 });
 app.post("/api/v1/payment/ticket",async(req,res)=>{
   try{
+    user = await getUser(req);
+    const isUserSubscribed = await db
+    .select("*")
+    .from("se_project.subscription")
+    .where("userid", user.id)
+    .first();
+    if(isUserSubscribed!=null){
     const{purchasedId,creditCardNumber,holderName,payedAmount,origin,destination,tripDate}=req.body;
-    const user=getUser(req);
+    const user= await getUser(req);
     let ticket={
       origin,
       destination,
@@ -191,13 +206,18 @@ app.post("/api/v1/payment/ticket",async(req,res)=>{
       userid:user.id,
       purchasedIid:purchasedId,
     }
+
     const ticketlol=await db("se_project.tickets").insert(ticket).returning("*");
     const transactionlol=await db("se_project.transactions").insert(transaction).returning("*");
     console.log(ticketlol);
     console.log(transactionlol);
+
     return res.status(201).json(ticketlol)+ res.status(201).json(transactionlol);
+  }else{
+    console.log("user is already subscirbed");
+    return res.status(400).send("user is already subscirbed");
   }
-  catch(err){
+  }catch(err){
     console.log("Error message",err.message);
     return res.status(400).send (err.message);
   }
