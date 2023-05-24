@@ -100,7 +100,9 @@ module.exports = function (app) {
       const {StationId} =req.params;
       
       if(selectedStation.length > 0){
-        
+        const  FromStationID = await db ("se_project.routes").where("fromStationid",StationId).returning("*");
+        //wa7wa7 was here hehehehehehe
+        //not your babe fr fr
         
         
         // continue this later 
