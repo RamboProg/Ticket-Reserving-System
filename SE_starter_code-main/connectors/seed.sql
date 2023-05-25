@@ -8,4 +8,4 @@ INSERT INTO se_project.roles("role")
 -- Set user role as Admin
 UPDATE se_project.users
 	SET "roleId"=2
-	WHERE "email"='desoukya@gmail.com';
+	WHERE "email"='desoukya@gmail.com'; 
