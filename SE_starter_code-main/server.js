@@ -94,5 +94,4 @@ app.use(function(req, res, next) {
   return res.status(404).render('404');
 });
 
-// Create HTTP Server and Listen for Requests
 app.listen(3000);
