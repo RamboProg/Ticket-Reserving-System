@@ -5,7 +5,8 @@ const roles = require("../../constants/roles");
 
 
 const { getSessionToken } = require('../../utils/session')
-const getUser = async function (req) {
+const getUser = async function (req,res) {
+  //not sure abouut this fix because it didnt have res as a parameter
   const sessionToken = getSessionToken(req);
   if (!sessionToken) {
     return res.status(301).redirect("/");
