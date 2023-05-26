@@ -107,11 +107,13 @@ module.exports = function (app) {
       });
 
       //POST for request senior
+      //this should be continued cause ther is wrong witht he syntax  
       app.post('/api/v1/senior/request', async (req, res) => {
         try {
           const { nationalId } = req.body;
           console.log(req.body);
-          const senior = await db('se_project.senior_requests').where(nationalId, getUser() ).select('*');
+          const user = await getUser(req);
+          const senior = await db('se_project.senior_requests').insert("Pending",user.id,nationalId).select('*');
           console.log(senior);
           return res.status(200).json(senior);
         } catch (e) {
@@ -139,22 +141,22 @@ module.exports = function (app) {
    
   });
   // zaids shit
+  //this is wrong
   app.put("/api/v1/password/reset",async(req,res)=>{
     try{
       console.log("ana ghalat");
-      const {newpassword}= req.body;
+      const {newPassword} = req.body;
       const user = await getUser(req);
       const updateUserPassword = await db("se_project.users")
       .where("id",user.id) // is this correct wala la2
-      .update({password: newpassword})
-      .returning("*");
+      .update({password: newPassword});
       return res.status(200).json(updateUserPassword);
     }catch(err){
       console.log("error message", err.message);
       return res.status(400).send("Could not update password");
     }
   });
-  
+  //correct
   app.post("/api/v1/station",async(req,res)=>{
     try{
       const{stationName} = req.body;
@@ -174,11 +176,15 @@ module.exports = function (app) {
   
   
   });
+  //not correct
   app.put("/api/v1/station/:stationId", async(req,res)=>{
     try{
       const {stationName} = req.body;
-      const {stationID} = req.params; 
-      const updatedStation = await db ("se_project.stations").where("id", stationID).update({stationname:stationName}).returning('*');
+      const {stationId} = req.params; 
+      const updatedStation = await db("se_project.stations")
+      .where("id", "=", parseInt(stationId))
+      .update({ stationname: stationName })
+      .returning("*");
       return res.status(200).json(updatedStation);
     }catch(err){
       console.log("Error message", err.message);
@@ -190,9 +196,9 @@ module.exports = function (app) {
   app.delete("/api/v1/station/:stationId", async(req,res)=>{
     try{
       const {StationId} =req.params;
-      
+      const selectedStation = await db("se_project.stations").where("toStationid",StationId).select("*");
       if(selectedStation.length > 0){
-        const  FromStationID = await db ("se_project.routes").where("fromStationid",StationId).returning("*");
+        const  FromStationID = await db ("se_project.routes").where("fromStationid",StationId).returning("*").first();
         //wa7wa7 was here hehehehehehe
         //not your babe fr fr
         
@@ -218,7 +224,7 @@ module.exports = function (app) {
   
   
   }); 
-
+//incorrect
   app.post("/api/v1/route", async(req,res)=>{
     try{
     const {newStationID,ConnectedStationId,routeName} =req.params;
@@ -239,45 +245,53 @@ module.exports = function (app) {
 
   });
 // mariam part 
-app.post("/api/v1/payment/subscription",async(req,res)=>{
+app.get("api/v1/zones", async(req,res)=>{
   try{
-    //subscription
-    const{purchasedId,creditCardNumber,holderName,payedAmount,subType,zoneId}= req.body;
-    const user= await getUser(req);
-    let NumberofTickets=0;
-    if (subType=="annual"){
-      NumberofTickets=100;
-
-    }else if(subType=="quarterly"){
-      NumberofTickets=50;
-    }else{
-      NumberofTickets=10;
-    }
-    let sub={
-      subtype:subType,
-      zoneid:zoneId,
-      userid:user.id,
-      NumberofTickets:NumberofTickets,
-    }
-    let transaction={
-      amount:payedAmount,
-      userid:user.id,
-      purchasedIid:purchasedId,
-    }
-
-    const subscriptionlol=await db("se_project.subsription").insert(sub).returning("*");
-    const transactionlol=await db("se_project.transactions").insert(transaction).returning("*");
-    console.log(subscriptionlol);
-    console.log(transactionlol);
-    return res.status(201).json(subscriptionlol)+ res.status(201).json(transactionlol);
-
-    
-    
+    const zones = await db.select("*").from("se_project.zones");
+    return res.status(200).json(zones);
   }catch(err){
-    console.log("Error message",err.message);
-    return res.status(400).send (err.message);
+    console.log("error message", err.message);
+    return res.status(400).send("failed to select zones");
+  }
+}); //get all zones
+//wrong lol
+app.post("/api/v1/payment/subscription", async (req, res) => {
+  try {
+    //subscription
+    const { purchasedId, creditCardNumber, holderName, payedAmount, subType, zoneId } = req.body;
+    const user = await getUser(req);
+    let NumberofTickets = 0;
+    if (subType == "annual") {
+      NumberofTickets = 100;
+    } else if (subType == "quarterly") {
+      NumberofTickets = 50;
+    } else {
+      NumberofTickets = 10;
+    }
+    let sub = {
+      subtype: subType,
+      zoneid: zoneId,
+      userid: user.id,
+      nooftickets: NumberofTickets,
+    };
+    let transaction = {
+      amount: payedAmount,
+      userid: user.id,
+      purchasedIid: purchasedId,
+    };
+
+    
+    // const transactionlol = await db("se_project.transactions").insert(transaction).returning("*");
+    const subscriptionlol = await db("se_project.subscription").insert(sub).returning("*");
+    console.log(subscriptionlol);
+    // console.log(transactionlol);
+    return res.status(201).json(subscriptionlol); //+ res.status(201).json(transactionlol);
+  } catch (err) {
+    console.log("Error message", err.message);
+    return res.status(400).send(err.message);
   }
 });
+//incorrect
 app.post("/api/v1/payment/ticket",async(req,res)=>{
   try{
     const user = await getUser(req);
@@ -317,34 +331,23 @@ app.post("/api/v1/payment/ticket",async(req,res)=>{
   }
 });
 
-app.put("/api/v1/password/reset",async(req,res)=>{
-  try{
-    const{password}= req.body;
-    const{userid} = req.params;
-    const updatedpassowrd = await db("se_project.users")
-    .where("id",userid)
-    .update({password:password})
-    .returning('*');
-    return res.status(200).json(updatedpassowrd);
+// app.put("/api/v1/password/reset",async(req,res)=>{
+//   try{
+//     const{password}= req.body;
+//     const{userid} = req.params;
+//     const updatedpassowrd = await db("se_project.users")
+//     .where("id",userid)
+//     .update({password:password})
+//     .returning('*');
+//     return res.status(200).json(updatedpassowrd);
     
-  }catch(err){
-    console.log("eror message", err.message);
-    return res.status(400).send("Couldnt rest password");
+//   }catch(err){
+//     console.log("eror message", err.message);
+//     return res.status(400).send("Couldnt rest password");
   
-  }
-});
+//   }
+// });
 
-// ask donia
-app.get("/api/v1/zones",async(req,res)=>{
-  try{
-    const zones =await db.select('*').from("se_project.zones");
-    return res.status(200).json(zones);
-  }
-  catch(err){
-    console.log("error message", err.message);
-    return res.status(400).send("failed to select zones");
-  }
-});
 //update the route name in the database
   app.put('/api/v1/route/:routeId', async (req, res) => {
     try {
