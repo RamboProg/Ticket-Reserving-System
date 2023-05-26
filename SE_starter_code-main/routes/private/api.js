@@ -47,8 +47,6 @@ module.exports = function (app) {
     }
    
   });
-<<<<<<< HEAD
-=======
   
  // update the route name in the database
   app.put('/api/v1/route/:routeId', async (req, res) => {
@@ -122,7 +120,7 @@ module.exports = function (app) {
       console.log(e.message);
       return res.status(400).send('An error occurred while updating the zone price');
     }
->>>>>>> f8dce78663c09f7f0ee45ea67b0b907f2bff9f02
+  });
 
   // update the route name in the database
   app.put('/api/v1/route/:routeId', async (req, res) => {
