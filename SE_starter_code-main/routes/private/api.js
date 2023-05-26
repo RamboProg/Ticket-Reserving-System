@@ -243,7 +243,7 @@ app.post("/api/v1/payment/subscription",async(req,res)=>{
     //subscription
     const{purchasedId,creditCardNumber,holderName,payedAmount,subType,zoneId}= req.body;
     const user= await getUser(req);
-    const NumberofTickets=0;
+    let NumberofTickets=0;
     if (subType=="annual"){
       NumberofTickets=100;
 
@@ -344,12 +344,7 @@ app.get("/api/v1/zones",async(req,res)=>{
     return res.status(400).send("failed to select zones");
   }
 });
-  };
-
-  //ahmad's part
-
-  
-  // update the route name in the database
+//update the route name in the database
   app.put('/api/v1/route/:routeId', async (req, res) => {
     try {
       const routeId = req.params.se_project.routes.id;
@@ -428,4 +423,10 @@ app.get("/api/v1/zones",async(req,res)=>{
   //   return res.status(404).render('404');
   // });
 
+  };
+
+  //ahmad's part
+
+  
+  
 

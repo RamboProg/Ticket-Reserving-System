@@ -1,5 +1,5 @@
-import {} from 'knex';
-import db from './connectors/db';
+// import {} from 'knex';
+// import db from './connectors/db';
 const path = require('path');
 const express = require('express');
 const app = express();
