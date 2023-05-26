@@ -5,7 +5,8 @@ const roles = require("../../constants/roles");
 
 
 const { getSessionToken } = require('../../utils/session')
-const getUser = async function (req) {
+const getUser = async function (req,res) {
+  //not sure abouut this fix because it didnt have res as a parameter
   const sessionToken = getSessionToken(req);
   if (!sessionToken) {
     return res.status(301).redirect("/");
@@ -243,7 +244,7 @@ app.post("/api/v1/payment/subscription",async(req,res)=>{
     //subscription
     const{purchasedId,creditCardNumber,holderName,payedAmount,subType,zoneId}= req.body;
     const user= await getUser(req);
-    const NumberofTickets=0;
+    let NumberofTickets=0;
     if (subType=="annual"){
       NumberofTickets=100;
 
@@ -279,7 +280,7 @@ app.post("/api/v1/payment/subscription",async(req,res)=>{
 });
 app.post("/api/v1/payment/ticket",async(req,res)=>{
   try{
-    user = await getUser(req);
+    const user = await getUser(req);
     const isUserSubscribed = await db
     .select("*")
     .from("se_project.subscription")
@@ -320,8 +321,8 @@ app.put("/api/v1/password/reset",async(req,res)=>{
   try{
     const{password}= req.body;
     const{userid} = req.params;
-    const updatedpassowrd = await db("se_project.users");
-    where("id",userid)
+    const updatedpassowrd = await db("se_project.users")
+    .where("id",userid)
     .update({password:password})
     .returning('*');
     return res.status(200).json(updatedpassowrd);
@@ -344,12 +345,7 @@ app.get("/api/v1/zones",async(req,res)=>{
     return res.status(400).send("failed to select zones");
   }
 });
-  };
-
-  //ahmad's part
-
-  
-  // update the route name in the database
+//update the route name in the database
   app.put('/api/v1/route/:routeId', async (req, res) => {
     try {
       const routeId = req.params.se_project.routes.id;
@@ -428,4 +424,10 @@ app.get("/api/v1/zones",async(req,res)=>{
   //   return res.status(404).render('404');
   // });
 
+  };
+
+  //ahmad's part
+
+  
+  
 
