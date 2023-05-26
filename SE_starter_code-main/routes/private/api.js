@@ -47,8 +47,78 @@ module.exports = function (app) {
     }
    
   });
- 
 
+  // update the route name in the database
+  app.put('/api/v1/route/:routeId', async (req, res) => {
+    try {
+      const routeId = req.params.se_project.routes.id;
+      const routeName = req.body.se_project.routes.routename;
+      await db('routes')
+        .where({ id: routeId })
+        .update({ name: routeName });
+      return res.status(200).send('Route updated successfully');
+    } catch (e) {
+      console.log(e.message);
+      return res.status(400).send('An error occurred while updating the route');
+    }
+  });
 
-  
+// delete the route from the database
+  app.delete('/api/v1/route/:routeId', async (req, res) => {
+    try {
+      const routeId = req.params.se_project.routes.id;
+      await db('routes')
+        .where({ id: routeId })
+        .del();
+      return res.status(200).send('Route deleted successfully');
+    } catch (e) {
+      console.log(e.message);
+      return res.status(400).send('An error occurred while deleting the route');
+    }
+  });
+
+// update the refund request in the database     still got adjust for online payment
+  app.put('/api/v1/requests/refunds/:requestId', async (req, res) => {
+    try {
+      const requestId = req.params.se_project.refund_requests.id;
+      const isAccepted = req.body === 'accepted'
+      await db('refund_requests')
+        .where({ id: requestId })
+        .update({ is_accepted: isAccepted });
+      return res.status(200).send('Refund request updated successfully');
+    } catch (e) {
+      console.log(e.message);
+      return res.status(400).send('An error occurred while updating the refund request');
+    }
+  });
+
+// update the senior request in the database
+  app.put('/api/v1/requests/senior/:requestId', async (req, res) => {
+    try {
+      const requestId = req.params.se_project.senior_requests.id;
+      const seniorStatus = req.body.se_project.senior_requests.status;
+      await db('senior_requests')
+        .where({ id: requestId })
+        .update({ status: seniorStatus });
+      return res.status(200).send('Senior request updated successfully');
+    } catch (e) {
+      console.log(e.message);
+      return res.status(400).send('An error occurred while updating the senior request');
+    }
+  });
+
+// update the zone price in the database
+  app.put('/api/v1/zones/:zoneId', async (req, res) => {
+    try {
+      const zoneId = req.params.se_project.zones.id;
+      const price = req.body.se_project.zones.price;
+      await db('zones')
+        .where({ id: zoneId })
+        .update({ price: price });
+      return res.status(200).send('Zone price updated successfully');
+    } catch (e) {
+      console.log(e.message);
+      return res.status(400).send('An error occurred while updating the zone price');
+    }
+  });
 };
