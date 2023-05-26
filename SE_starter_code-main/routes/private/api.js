@@ -279,7 +279,7 @@ app.post("/api/v1/payment/subscription",async(req,res)=>{
 });
 app.post("/api/v1/payment/ticket",async(req,res)=>{
   try{
-    user = await getUser(req);
+    const user = await getUser(req);
     const isUserSubscribed = await db
     .select("*")
     .from("se_project.subscription")
@@ -320,8 +320,8 @@ app.put("/api/v1/password/reset",async(req,res)=>{
   try{
     const{password}= req.body;
     const{userid} = req.params;
-    const updatedpassowrd = await db("se_project.users");
-    where("id",userid)
+    const updatedpassowrd = await db("se_project.users")
+    .where("id",userid)
     .update({password:password})
     .returning('*');
     return res.status(200).json(updatedpassowrd);
