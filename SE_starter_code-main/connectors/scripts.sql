@@ -1,3 +1,4 @@
+-- Active: 1684669398628@@127.0.0.1@5432@postgres@se_project
 -- DROP TABLE IF EXISTS se_project.users;
 -- DROP TABLE IF EXISTS roles;
 -- DROP TABLE IF EXISTS faculties;
