@@ -61,6 +61,16 @@ module.exports = function (app) {
           };
           const addedSub = await db('se_project.subsription').insert(newSub).returning('*');
           const nooftickets = await db('se_project.subsription').where({ subID }).select('noOfTickets') - 1;
+          const ticket = await db('se_project.tickets').where('subiD', subID).select('*');
+          const user = await getUser(req);
+          const newTicket = {
+            userID: user.id,
+            subID,
+            origin,
+            destination,
+            tripDate
+          };
+          const addedTicket = await db('se_project.tickets').insert(newTicket).returning('*');
           //Create upcoming ride
           const newRide = {
             origin,
@@ -89,8 +99,6 @@ module.exports = function (app) {
           console.log("error in tickets price");
         }
       });
-
-      //POST for rides
 
       //POST for request refunds
       app.post('/api/v1/refund/:ticketId', async (req, res) => {
@@ -126,7 +134,8 @@ module.exports = function (app) {
         try{
           const { origin, destination, tripDate } = req.body;
           const { rideID } = req.params;
-          const simulatedRide = await db('se_project.rides').where("id", getUser()).returning('*');
+          const currUser = await getUser(req);
+          const simulatedRide = await db('se_project.rides').where("id", currUser.id).returning('*');
           return res.status(200).json(simulatedRide);
         }catch (e) {
           console.log("error in ride simulation");
@@ -199,20 +208,37 @@ module.exports = function (app) {
       const selectedStation = await db("se_project.stations").where("toStationid",StationId).select("*");
       if(selectedStation.length > 0){
         const  FromStationID = await db ("se_project.routes").where("fromStationid",StationId).returning("*").first();
+        const toStationid = await db ("se_project.routes").where("toStationid",StationId).returning("*").first();
         //wa7wa7 was here hehehehehehe
         //not your babe fr fr
+        const element = "";
+        for(let i = 0; i < selectedStation.length; i++){
+          if(selectedStation[i].id == StationId){
+            element = selectedStation[i];
+          }
+        }
         
+        for (let i = 0; i < selectedStation.length; i++) {
+          if(element.stationposition == "start"){
+            const updatedRoute = await db ("se_project.routes").where("id",element.id).update({fromStationid: FromStationID.toStationid}).returning("*");
+          }else if(element.stationposition == "middle"){
+            const updatedRoute = await db ("se_project.routes").where("id",element.id).update({fromStationid: FromStationID.toStationid, toStationid: toStationid.fromStationid}).returning("*");
+          }else{
+            //Transfer Route still not done
+          }
+        }
         
         // continue this later 
-        if(selectedStation[0].stationposition =="start"){
-          selectedStationStart.toStationid.stationposition = "start";
+      //   if(selectedStation[0].stationposition =="start"){
+      //     selectedStationStart.toStationid.stationposition = "start";
           
-        }else if(selectedStation[0].stationposition=="middle"){
-          sele
+      //   }else if(selectedStation[0].stationposition=="middle"){
+      //     selectedStationMiddle = selectedStation[0];
+      //     selectedStationMiddle.toStationid = selectedStationMiddle.fromStationid;
           
-        }else{}
-      }
-        const deletedStation = await db ("se_project.stations").where("id",StationId).del().returning('*');
+      //   }else{}
+       }
+         const deletedStation = await db ("se_project.stations").where("id",StationId).del().returning('*');
         
         console.log("Deleted", deletedStation);
         return res.status(200).json(deletedStation);
