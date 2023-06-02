@@ -1,8 +1,11 @@
+// import {} from 'knex';
+// import db from './connectors/db';
 const path = require('path');
 const express = require('express');
 const app = express();
 const authMiddleware = require('./middleware/auth');
 const privateApiRoutes = require('./routes/private/api');
+
 const publicApiRoutes = require('./routes/public/api');
 const publicViewRoutes = require('./routes/public/view');
 const privateViewRoutes = require('./routes/private/view');
@@ -37,5 +40,4 @@ app.use(function(req, res, next) {
   return res.status(404).render('404');
 });
 
-// Create HTTP Server and Listen for Requests
 app.listen(3000);

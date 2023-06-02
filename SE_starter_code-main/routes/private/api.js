@@ -202,6 +202,7 @@ module.exports = function (app) {
   
   });
 
+
   app.delete("/api/v1/station/:stationId", async(req,res)=>{
     try{
       const {StationId} =req.params;
@@ -340,7 +341,6 @@ app.post("/api/v1/payment/ticket",async(req,res)=>{
       userid:user.id,
       purchasedIid:purchasedId,
     }
-
     const ticketlol=await db("se_project.tickets").insert(ticket).returning("*");
     const transactionlol=await db("se_project.transactions").insert(transaction).returning("*");
     console.log(ticketlol);
@@ -459,3 +459,5 @@ app.post("/api/v1/payment/ticket",async(req,res)=>{
 
   
   
+
+
