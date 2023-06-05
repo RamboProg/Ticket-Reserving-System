@@ -86,13 +86,18 @@ module.exports = function (app) {
         }
       });
 
-      //POST for prices
-      app.post('/api/v1/tickets/price/:originId&:destinationId', async (req, res) => {
+      //GET for prices
+      app.get('/api/v1/tickets/price/:originId&:destinationId', async (req, res) => {
         try {
           const { originId, destinationId } = req.params;
-          console.log(req.params);
-          const price = await db('se_project.zones').where({ originId, destinationId }).select('price');
-          console.log(price);
+          //Get the amount of stations between the origin and destination
+          const stations = await db('se_project.stations').where({ originId, destinationId }).select('*');
+
+          if(stations <= 9){
+            const price = 5;
+          } else if(stations >16){
+            const price = 7;
+          } else { const price = 10; }
           return res.status(200).json(price);
 
         } catch (e) {
@@ -202,6 +207,8 @@ module.exports = function (app) {
   
   });
 
+
+//Check this with Zaid 
   app.delete("/api/v1/station/:stationId", async(req,res)=>{
     try{
       const {StationId} =req.params;
@@ -211,37 +218,29 @@ module.exports = function (app) {
         const toStationid = await db ("se_project.routes").where("toStationid",StationId).returning("*").first();
         //wa7wa7 was here hehehehehehe
         //not your babe fr fr
-        const element = "";
-        for(let i = 0; i < selectedStation.length; i++){
-          if(selectedStation[i].id == StationId){
-            element = selectedStation[i];
-          }
-        }
         
         for (let i = 0; i < selectedStation.length; i++) {
           if(element.stationposition == "start"){
             const updatedRoute = await db ("se_project.routes").where("id",element.id).update({fromStationid: FromStationID.toStationid}).returning("*");
-          }else if(element.stationposition == "middle"){
+            const updatedStation = await db ("se_project.stations").where("id",element.id).update({toStationid: FromStationID.toStationid}).returning("*");
+            updatedStation.stationposition = "start";
+          }else if(element.stationposition == "end"){
             const updatedRoute = await db ("se_project.routes").where("id",element.id).update({fromStationid: FromStationID.toStationid, toStationid: toStationid.fromStationid}).returning("*");
-          }else{
-            //Transfer Route still not done
+            const updatedStation = await db ("se_project.stations").where("id",element.id).update({toStationid: toStationid.fromStationid}).returning("*");
+            updatedStation.stationposition = "end";
+          }else if (element.stationposition == "middle"){
+            //delete the middle type station and get the routes that are connected to it and connect it to the station before it and the station after it
+            const updatedRoute = await db ("se_project.routes").where("id",element.id).update({fromStationid: FromStationID.toStationid, toStationid: toStationid.fromStationid}).returning("*");
+            const updatedRouteOther = await db ("se_project.routes").where("id",element.id).update({toStationid: FromStationID.toStationid, fromStationid: toStationid.fromStationid}).returning("*");
+            const updatedStation = await db ("se_project.stations").where("id",element.id).update({toStationid: toStationid.fromStationid}).returning("*");
+            updatedStation.stationposition = "middle";
+            
           }
         }
+      }
         
-        // continue this later 
-      //   if(selectedStation[0].stationposition =="start"){
-      //     selectedStationStart.toStationid.stationposition = "start";
-          
-      //   }else if(selectedStation[0].stationposition=="middle"){
-      //     selectedStationMiddle = selectedStation[0];
-      //     selectedStationMiddle.toStationid = selectedStationMiddle.fromStationid;
-          
-      //   }else{}
-       }
-         const deletedStation = await db ("se_project.stations").where("id",StationId).del().returning('*');
-        
-        console.log("Deleted", deletedStation);
-        return res.status(200).json(deletedStation);
+        console.log("Deleted", selectedStation);
+        return res.status(200).json(selectedStation);
         
     }catch(err){
       console.log("Error message ",err.message);
@@ -452,6 +451,8 @@ app.post("/api/v1/payment/ticket",async(req,res)=>{
   // app.use(function (req, res, next) {
   //   return res.status(404).render('404');
   // });
+  
+
 
   };
 
