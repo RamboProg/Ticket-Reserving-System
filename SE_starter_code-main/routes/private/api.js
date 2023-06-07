@@ -4,7 +4,9 @@ const db = require("../../connectors/db");
 const roles = require("../../constants/roles");
 
 
-const { getSessionToken } = require('../../utils/session')
+const { getSessionToken } = require('../../utils/session');
+const { request } = require("express");
+const nodemon = require("nodemon");
 const getUser = async function (req,res) {
   //not sure abouut this fix because it didnt have res as a parameter
   const sessionToken = getSessionToken(req);
@@ -41,97 +43,7 @@ module.exports = function (app) {
   app.get("/users", async function (req, res) {
     try {
       const user = await getUser(req);
-      const users = await db.select('*').from("se_project.users")
-
-      //Rambo's Tasks------------------------------------------------------------------------------------------------------------------------------
-
-      //POST for tickets new subscription
-
-      // fetch el tickets then decrement from sub and insert to table tickets, then create upcoming ride and use origin and destination to do so 
-      app.post('/api/v1/tickets/purchase/subscription', async (req, res) => {
-        try {
-
-          const { subID, origin, destination, tripDate } = req.body;
-          console.log(req.body);
-          let newSub = {
-            subID,
-            origin,
-            destination,
-            tripDate
-          };
-          const addedSub = await db('se_project.subsription').insert(newSub).returning('*');
-          const nooftickets = await db('se_project.subsription').where({ subID }).select('noOfTickets') - 1;
-          //Create upcoming ride
-          const newRide = {
-            origin,
-            destination,
-            tripDate
-          };
-          const addedRide = await db('se_project.rides').insert(newRide).returning('*');
-
-          console.log(addedSub);
-          return res.status(200).json(addedSub);
-        } catch (e) {
-          console.log("error in tickets purchase subscription");
-        }
-      });
-
-      //POST for prices
-      app.post('/api/v1/tickets/price/:originId&:destinationId', async (req, res) => {
-        try {
-          const { originId, destinationId } = req.params;
-          console.log(req.params);
-          const price = await db('se_project.zones').where({ originId, destinationId }).select('price');
-          console.log(price);
-          return res.status(200).json(price);
-
-        } catch (e) {
-          console.log("error in tickets price");
-        }
-      });
-
-      //POST for rides
-
-      //POST for request refunds
-      app.post('/api/v1/refund/:ticketId', async (req, res) => {
-        try {
-
-          const { ticketId } = req.params;
-          console.log(req.params);
-          const refund = await db('se_project.tickets').where({ ticketId }).update({ status: "Refunded" });
-          console.log(refund);
-          return res.status(200).json(refund);
-        } catch (e) {
-          console.log("error in refund");
-        }
-      });
-
-      //POST for request senior
-      //this should be continued cause ther is wrong witht he syntax  
-      app.post('/api/v1/senior/request', async (req, res) => {
-        try {
-          const { nationalId } = req.body;
-          console.log(req.body);
-          const user = await getUser(req);
-          const senior = await db('se_project.senior_requests').insert("Pending",user.id,nationalId).select('*');
-          console.log(senior);
-          return res.status(200).json(senior);
-        } catch (e) {
-          console.log("error in senior request");
-        }
-      });
-
-      //PUT for rides simulation
-      app.put('/api/v1/ride/simulate', async (req, res) => {
-        try{
-          const { origin, destination, tripDate } = req.body;
-          const { rideID } = req.params;
-          const simulatedRide = await db('se_project.rides').where("id", getUser()).returning('*');
-          return res.status(200).json(simulatedRide);
-        }catch (e) {
-          console.log("error in ride simulation");
-        }
-      });
+      const users = await db.select('*').from("se_project.users");
       return res.status(200).json(users);
     } catch (e) {
       console.log(e.message);
@@ -140,18 +52,169 @@ module.exports = function (app) {
 
    
   });
-  // zaids shit
-  //this is wrong
-  app.put("/api/v1/password/reset",async(req,res)=>{
+  app.get("/api/v1/subscription",async function(req,res){
     try{
-      console.log("ana ghalat");
-      const {newPassword} = req.body;
-      const user = await getUser(req);
-      const updateUserPassword = await db("se_project.users")
-      .where("id",user.id) // is this correct wala la2
-      .update({password: newPassword});
-      return res.status(200).json(updateUserPassword);
+
+      const user = getUser(req);
+      const subscription = await db.select("*").from("se_project.subsription");
+      return res.status(200).json(subscription);
+    }catch(e){
+      return res.status(400).json(e.message);
+    }
+
+  });
+
+        //Rambo's Tasks------------------------------------------------------------------------------------------------------------------------------
+
+      //POST for tickets new subscription
+
+      // fetch el tickets then decrement from sub and insert to table tickets, then create upcoming ride and use origin and destination to do so 
+     // correct
+      app.post('/api/v1/tickets/purchase/subscription', async (req, res) => {
+        try {
+          const { subID, Origin, destination, tripDate } = req.body;
+          const user = await getUser(req);
+          let sub = (await db("se_project.subsription").where("id", subID).select("nooftickets").first());
+          sub = sub.nooftickets - 1;
+          const updatedSub = await db("se_project.subsription").where("id", subID).update({ nooftickets: sub });
+          const transaction = {
+            amount: 0,
+            userid: user.userid,
+            purchasediid: subID,
+          };
+          const ticket = {
+            origin: Origin,
+            destination: destination,
+            userid: user.userid,
+            subid: updatedSub.id,
+            tripdate: tripDate
+
+          };
+          const transactionlol = await db("se_project.transactions").insert(transaction).returning("*");
+          const ticketlol = await db("se_project.tickets").insert(ticket).returning("*");
+           console.log(ticketlol[0].id,"ticket");
+          // console.log("hiii");
+          // console.log(updatedSub,"Subscription");
+          const ride = {
+            status: "Upcoming",
+            origin: Origin,
+            destination: destination,
+            userid: user.userid,
+            ticketid:ticketlol[0].id,
+            tripdate: tripDate
+            
+          };
+          const ridelol = await db("se_project.rides").insert(ride).returning("*");
+          return res.status(200).json(ridelol);
+        }catch(e){
+          return res.status(400).json(e.message);
+        }
+      });
+
+      //POST for prices
+      app.post("/api/v1/tickets/price/:originId&:destinationId", async (req, res) => {
+        try {
+          const { originId, destinationId } = req.params;
+          console.log(req.params);
+          const price = await db("se_project.zones").where({ originId, destinationId }).select('price');
+          console.log(price);
+          return res.status(200).json(price);
+
+        } catch (e) {
+          return res.status(400).json(e.message);
+        }
+      });
+
+      //POST for request refunds
+      // correct
+      app.post('/api/v1/refund/:ticketId', async (req, res) => {
+        try {
+
+          const { ticketId } = req.params;
+          const user = await getUser(req);
+          const GetDetails = await db("se_project.tickets").where("id",ticketId).select("*").first();
+          if(GetDetails[0].tripdate<new Date() ){
+          const GetTicket = await db("se_project.transactions").where("userid",user.userid).select("amount").first();
+          
+          console.log("Ticket",GetTicket);
+          const refundReq={
+            status:"Pending",
+            userid:user.userid,
+            refundamount:GetTicket.amount,
+            ticketid:ticketId
+
+          }
+          console.log(req.params);
+          const refund = await db("se_project.refund_requests").insert(refundReq).returning("*")
+          console.log(refund);
+          return res.status(200).json(refund);
+        }else 
+          { return res.status(400).send("Outdated ticket")}
+        } catch (e) {
+          return res.status(400).json(e.message);
+        }
+        
+      });
+
+      //POST for request senior
+      //correct
+      app.post('/api/v1/senior/request', async (req, res) => {
+        try {
+          const { nationalId } = req.body;
+          console.log(req.body);
+
+          const user = await getUser(req);
+          const serioReq={
+            status:"Pending",
+            userid:user.userid,
+            nationalid:nationalId
+          }
+          const senior = await db('se_project.senior_requests').insert(serioReq).select('*');
+          console.log(senior);
+          return res.status(200).json(senior);
+        } catch (e) {
+          console.log("");
+          return res.status(400).send(e.message);
+        }
+      });
+
+      //PUT for rides simulation
+      app.put('/api/v1/ride/simulate', async (req, res) => {
+        try{
+          const { Origin, Destination, tripDate } = req.body;
+          
+          const currUser = await getUser(req);
+          const simulatedRide = await db('se_project.rides').where("origin",Origin).where("destination",Destination).where("tripdate",tripDate).returning('*');
+          if(simulatedRide!=null){
+
+            // const updatedRide = await db ("se_project.rides").where("id", currUser.userid).where("origin",Origin).where("destination",Destination).where("tripdate",tripDate).update({status:"Completed"}).returning("*");
+            const updateride = await db("se_project.rides").where( {origin : Origin, destination : Destination, tripdate : tripDate}).update({status : "Completed"}).returning("*");
+            return res.status(200).json(updateride);
+          }
+          
+          }catch (e) {
+            return res.status(400).json(e.message);
+          }
+        });
+  // zaids shit
+  //correct
+  
+  app.put("/api/v1/password/reset",async(req,res)=>{
+    console.log("ana ghalat");
+    const {newPassword} = req.body;
+    const user = await getUser(req);
+    try{
+      const updateUserPassword = await db("se_project.users").where("id", user.id).update({
+        password: newPassword
+      });
+       console.log(updateUserPassword, "database")
+      //const updateUserPassword2 = await db("se_project.users").where("id", 2)
+      //console.log(updateUserPassword, "database updated")
+      //console.log("");
+      const user2 = await getUser(req);
+      return res.status(200).json(user2);
     }catch(err){
+      
       console.log("error message", err.message);
       return res.status(400).send("Could not update password");
     }
@@ -159,9 +222,9 @@ module.exports = function (app) {
   //correct
   app.post("/api/v1/station",async(req,res)=>{
     try{
-      const{stationName} = req.body;
+      const{stationname} = req.body;
       let newStation = {
-        stationname: stationName,
+        stationname,
         stationtype: "Noraml",
         stationposition: null,
         stationstatus: "New",
@@ -176,15 +239,14 @@ module.exports = function (app) {
   
   
   });
-  //not correct
+  //correct
   app.put("/api/v1/station/:stationId", async(req,res)=>{
     try{
-      const {stationName} = req.body;
+      const {stationname} = req.body;
       const {stationId} = req.params; 
       const updatedStation = await db("se_project.stations")
       .where("id", "=", parseInt(stationId))
-      .update({ stationname: stationName })
-      .returning("*");
+      .update({ stationname });
       return res.status(200).json(updatedStation);
     }catch(err){
       console.log("Error message", err.message);
@@ -192,30 +254,25 @@ module.exports = function (app) {
     }
   
   });
-
+  
   app.delete("/api/v1/station/:stationId", async(req,res)=>{
     try{
       const {StationId} =req.params;
-      const selectedStation = await db("se_project.stations").where("toStationid",StationId).select("*");
-      if(selectedStation.length > 0){
-        const  FromStationID = await db ("se_project.routes").where("fromStationid",StationId).returning("*").first();
-        //wa7wa7 was here hehehehehehe
-        //not your babe fr fr
-        
-        
-        // continue this later 
-        if(selectedStation[0].stationposition =="start"){
-          selectedStationStart.toStationid.stationposition = "start";
+      const selectedStation = await db("se_project.stations").where("id",StationId).select("*");
+      const selectedStationRouteTo = await db("se_project.routes").where("tostationid",selectedStation.id).select("*");
+      const selectedStationRouteToStationInfo= await db("se_projects.stations").where("id",selectedStationRouteTo.tostationid).select("*");
+      const selectedStationFrom = await db("se_project.routes").where("fromstationid",selectedStation.id).select("*");
+      const selectedStationFromStationInfo = await db("se_projects.stations").where("id",selectedStationFrom.tostationid).select("*");
+      if(selectedStation.stationtype==="normal"&& selectedStation.stationposition==="start"){
           
-        }else if(selectedStation[0].stationposition=="middle"){
-          sele
-          
-        }else{}
+          const lol = await db ("se_project.stations").where ("id",selectedStationRouteToStationInfo.id).update({stationposition:"Start"}).returning("*");
+      }else if (selectedStation.stationposition ==="end"&& selectedStation.stationtype==="normal"){
+        const updatedEnd  = await db ("se_project.stations").where ("id",selectedStationFromStationInfo.id).update({stationposition:"End"}).returning("*");
+      
       }
-        const deletedStation = await db ("se_project.stations").where("id",StationId).del().returning('*');
-        
-        console.log("Deleted", deletedStation);
-        return res.status(200).json(deletedStation);
+      
+      const deleted = await db 
+      return res.status(200).json();
         
     }catch(err){
       console.log("Error message ",err.message);
@@ -224,15 +281,15 @@ module.exports = function (app) {
   
   
   }); 
-//incorrect
+//correct
   app.post("/api/v1/route", async(req,res)=>{
     try{
-    const {newStationID,ConnectedStationId,routeName} =req.params;
+    const {routeName,ConnectedStationId,newStationId} =req.body;
     let newRoute =
     {
       routename:routeName,
-      fromStationid: ConnectedStationId,
-      toStationid : newStationID
+      fromstationid: ConnectedStationId,
+      tostationid : newStationId
     }
     const addedRoute = await db("se_project.routes").insert(newRoute).returning("*");
     console.log(addedRoute);
@@ -241,24 +298,25 @@ module.exports = function (app) {
     console.log("Error message", err.message);
     return res.status(400).send(err.message);
   }
-
-
   });
 // mariam part 
-app.get("api/v1/zones", async(req,res)=>{
+// correct
+app.get("/api/v1/zones", async(req,res)=>{
+  
   try{
     const zones = await db.select("*").from("se_project.zones");
+    // console.log(zones.first());
     return res.status(200).json(zones);
   }catch(err){
     console.log("error message", err.message);
     return res.status(400).send("failed to select zones");
   }
-}); //get all zones
-//wrong lol
+});
+//correct 
 app.post("/api/v1/payment/subscription", async (req, res) => {
   try {
     //subscription
-    const { purchasedId, creditCardNumber, holderName, payedAmount, subType, zoneId } = req.body;
+    const { payedAmount, subType, zoneId } = req.body;
     const user = await getUser(req);
     let NumberofTickets = 0;
     if (subType == "annual") {
@@ -271,33 +329,35 @@ app.post("/api/v1/payment/subscription", async (req, res) => {
     let sub = {
       subtype: subType,
       zoneid: zoneId,
-      userid: user.id,
+      userid: user.userid,
       nooftickets: NumberofTickets,
     };
+    // console.log(nooftickets);
+    
+
+    
+    const subscriptionlol = await db("se_project.subsription").insert(sub).returning("*");
     let transaction = {
       amount: payedAmount,
       userid: user.id,
-      purchasedIid: purchasedId,
+      purchasediid: subscriptionlol[0].id,
     };
-
-    
-    // const transactionlol = await db("se_project.transactions").insert(transaction).returning("*");
-    const subscriptionlol = await db("se_project.subscription").insert(sub).returning("*");
+    const transactionlol = await db("se_project.transactions").insert(transaction).returning("*");
     console.log(subscriptionlol);
-    // console.log(transactionlol);
+     console.log(transactionlol);
     return res.status(201).json(subscriptionlol); //+ res.status(201).json(transactionlol);
   } catch (err) {
     console.log("Error message", err.message);
     return res.status(400).send(err.message);
   }
 });
-//incorrect
+//correct
 app.post("/api/v1/payment/ticket",async(req,res)=>{
   try{
     const user = await getUser(req);
     const isUserSubscribed = await db
     .select("*")
-    .from("se_project.subscription")
+    .from("se_project.subsription")
     .where("userid", user.id)
     .first();
     if(isUserSubscribed!=null){
@@ -306,13 +366,13 @@ app.post("/api/v1/payment/ticket",async(req,res)=>{
     let ticket={
       origin,
       destination,
-      user:user.id,
+      userid:user.id,
       tripdate:tripDate,
     }
     let transaction={
       amount:payedAmount,
       userid:user.id,
-      purchasedIid:purchasedId,
+      purchasediid:purchasedId,
     }
 
     const ticketlol=await db("se_project.tickets").insert(ticket).returning("*");
@@ -320,7 +380,7 @@ app.post("/api/v1/payment/ticket",async(req,res)=>{
     console.log(ticketlol);
     console.log(transactionlol);
 
-    return res.status(201).json(ticketlol)+ res.status(201).json(transactionlol);
+    return res.status(201).json(ticketlol)//+ res.status(201).json(transactionlol);
   }else{
     console.log("user is already subscirbed");
     return res.status(400).send("user is already subscirbed");
@@ -330,32 +390,16 @@ app.post("/api/v1/payment/ticket",async(req,res)=>{
     return res.status(400).send (err.message);
   }
 });
-
-// app.put("/api/v1/password/reset",async(req,res)=>{
-//   try{
-//     const{password}= req.body;
-//     const{userid} = req.params;
-//     const updatedpassowrd = await db("se_project.users")
-//     .where("id",userid)
-//     .update({password:password})
-//     .returning('*');
-//     return res.status(200).json(updatedpassowrd);
-    
-//   }catch(err){
-//     console.log("eror message", err.message);
-//     return res.status(400).send("Couldnt rest password");
-  
-//   }
-// });
-
+//ahmad's part
 //update the route name in the database
+//correct
   app.put('/api/v1/route/:routeId', async (req, res) => {
     try {
-      const routeId = req.params.se_project.routes.id;
-      const routeName = req.body.se_project.routes.routename;
-      await db('routes')
-        .where({ id: routeId })
-        .update({ name: routeName });
+      const {routeId} = req.params;
+      const {routeName} = req.body;
+      await db("se_project.routes")
+        .where("id", routeId)
+        .update({ routename: routeName });
       return res.status(200).send('Route updated successfully');
     } catch (e) {
       console.log(e.message);
@@ -364,12 +408,13 @@ app.post("/api/v1/payment/ticket",async(req,res)=>{
   });
 
 // delete the route from the database
+//correct
   app.delete('/api/v1/route/:routeId', async (req, res) => {
     try {
-      const routeId = req.params.se_project.routes.id;
-      await db('routes')
-        .where({ id: routeId })
-        .del();
+      const {routeId} = req.params;
+      
+     
+      await db("se_project.routes").where("id",routeId).del();
       return res.status(200).send('Route deleted successfully');
     } catch (e) {
       console.log(e.message);
@@ -393,12 +438,13 @@ app.post("/api/v1/payment/ticket",async(req,res)=>{
   });
 
 // update the senior request in the database
+//for later testing still i have to have a senior request os i can test it
   app.put('/api/v1/requests/senior/:requestId', async (req, res) => {
     try {
-      const requestId = req.params.se_project.senior_requests.id;
-      const seniorStatus = req.body.se_project.senior_requests.status;
-      await db('senior_requests')
-        .where({ id: requestId })
+      const {requestId} = req.params;
+      const {seniorStatus} = req.body;
+      await db('se_project.senior_requests')
+        .where("id",requestId)
         .update({ status: seniorStatus });
       return res.status(200).send('Senior request updated successfully');
     } catch (e) {
@@ -408,13 +454,14 @@ app.post("/api/v1/payment/ticket",async(req,res)=>{
   });
 
 // update the zone price in the database
+// correct
   app.put('/api/v1/zones/:zoneId', async (req, res) => {
     try {
-      const zoneId = req.params.se_project.zones.id;
-      const price = req.body.se_project.zones.price;
-      await db('zones')
-        .where({ id: zoneId })
-        .update({ price: price });
+      const {zoneId} = req.params;
+      const {newprice} = req.body;
+      await db('se_project.zones')
+        .where("id",zoneId)
+        .update({price: newprice});
       return res.status(200).send('Zone price updated successfully');
     } catch (e) {
       console.log(e.message);
@@ -426,10 +473,18 @@ app.post("/api/v1/payment/ticket",async(req,res)=>{
   // app.use(function (req, res, next) {
   //   return res.status(404).render('404');
   // });
-
+  app.get('/api/v1/station', async (req, res) => {
+    try {
+      const stations = await db.select('*').from('se_project.stations');
+      return res.status(200).json(stations);
+    } catch (e) {
+      console.log(e.message);
+      return res.status(400).send('Could not get stations');
+    }
+  });
   };
+ 
 
-  //ahmad's part
 
   
   

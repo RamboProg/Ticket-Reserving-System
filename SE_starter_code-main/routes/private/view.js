@@ -37,10 +37,48 @@ module.exports = function(app) {
   });
 
   // Register HTTP endpoint to render /courses page
-  app.get('/stations', async function(req, res) {
+  app.get('/stations_example', async function(req, res) {
     const user = await getUser(req);
     const stations = await db.select('*').from('se_project.stations');
     return res.render('stations_example', { ...user, stations });
   });
+  app.get('/subscriptions', async function(req, res) {
+    const user  =await getUser(req);
+     const sub = await db.select('*').from('se_project.subsription').where('userid', user.userid);
+    return res.render('subscriptions', {user,sub});
 
+  });
+  app.get('/TicketPurchase',async function(req,res){
+    const user = await getUser(req);
+    // how will i send the user to be able to purchase a ticket
+    return res.render('TicketPurchase',{user});
+  });
+  app.get('/subscriptionPurchase',async function(req,res){
+    const user = await getUser(req);
+    // how will i send the user to be able to purchase a ticket
+    return res.render('subscriptionPurchase',{user});
+  });
+  app.get('/tickets',async function(req,res){
+    const user = await getUser(req);
+    const ticket= await db.select("*").from("se_project.tickets").where("userid",user.userid);
+    console.log("ticket",ticket);
+    return res.render('tickets',{user,ticket});
+  
+
+  });
+  app.get('/manage_stations',async function(req,res){
+    const user = await getUser(req);
+    return res.render('manage_Stations',{user});
+  })
+  app.get('/refund',async function(req,res){
+    const user = await getUser(req);
+    return res.render('refund',{user});
+  })
+  app.get('/senior',async function(req,res){
+    const user = await getUser(req);
+    return res.render('senior',{user});
+  });
+  app.get('/TicketPurchaseSubscription',async function(req,res){
+    return res.render('TicketPurchaseSubscription');
+  });
 };
