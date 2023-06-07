@@ -475,8 +475,8 @@ app.post("/api/v1/payment/ticket",async(req,res)=>{
   // });
   app.get('/api/v1/station', async (req, res) => {
     try {
-      const stations = await db.select('*').from('se_project.stations');
-      return res.status(200).json(stations);
+      const station = await db.select('*').from('se_project.stations');
+      return res.status(200).json(station);
     } catch (e) {
       console.log(e.message);
       return res.status(400).send('Could not get stations');
