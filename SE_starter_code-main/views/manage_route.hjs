@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Routes Table</title>
+    <style>
+      /* add styles for the table */
+      #routesTable {
+        border-collapse: collapse;
+      }
+
+      #routesTable th,
+      #routesTable td {
+        border: 1px solid black;
+        padding: 8px;
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        // function to load data from the server and display it in the table
+        function loadData() {
+          $.ajax({
+            url: "loadData.php",
+            type: "GET",
+            success: function (data) {
+              $("#routesTable tbody").html(data);
+            },
+          });
+        }
+
+        // load data when the page loads
+        loadData();
+
+        // handle click event for the "Edit route" button
+        $("#routesTable").on("click", ".editBtn", function () {
+          var id = $(this).data("id");
+          // code to edit the route with the given id
+        });
+
+        // handle click event for the "Create route" button
+        $("#createBtn").on("click", function () {
+          // code to create a new route
+        });
+
+        // handle click event for the "Delete route" button
+        $("#deleteBtn").on("click", function () {
+          // code to delete a route
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <table id="routesTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Route Name</th>
+          <th>From Station ID</th>
+          <th>To Station ID</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <button id="createBtn">Create route</button>
+    <button id="deleteBtn">Delete route</button>
+  </body>
+</html>
