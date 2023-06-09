@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS se_project.roles
 CREATE TABLE IF NOT EXISTS se_project.zones
 (
     id SERIAL NOT NULL,
-    zonetype text NOT NULL, -- 9 stations/ 10-16/16
+    zonetype text NOT NULL, -- 9/5,  10-16/7, >16/10
     price INTEGER NOT NULL,
     CONSTRAINT zones_pkey PRIMARY KEY (id)
 
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS se_project.rides
     ticketid integer not null,
     tripdate timestamp not null,
     FOREIGN KEY( userid ) REFERENCES se_project.users,
-    FOREIGN KEY( ticketid ) REFERENCES se_project.rides,
+    FOREIGN KEY( ticketid ) REFERENCES se_project.tickets,
     CONSTRAINT rides_pkey PRIMARY KEY (id)
 );
 CREATE TABLE IF NOT EXISTS se_project.transactions
@@ -100,6 +100,7 @@ CREATE TABLE IF NOT EXISTS se_project.refund_requests
     FOREIGN KEY( ticketid ) REFERENCES se_project.tickets,
     CONSTRAINT refund_requests_pkey PRIMARY KEY (id)
 );
+-- subs,zone , 
 CREATE TABLE IF NOT EXISTS se_project.senior_requests
 (
     id SERIAL NOT NULL,
@@ -122,8 +123,8 @@ CREATE TABLE IF NOT EXISTS se_project.routes
 (
     id SERIAL NOT NULL,
     routename text Not null,
-    fromStationid INTEGER NOT NULL,
-    toStationid INTEGER NOT NULL, 
+    fromstationid INTEGER NOT NULL,
+    tostationid INTEGER NOT NULL, 
     CONSTRAINT routes_pkey PRIMARY KEY (id),
     FOREIGN KEY( fromStationid ) REFERENCES se_project.stations on DELETE CASCADE on UPDATE CASCADE,
     FOREIGN KEY( toStationid ) REFERENCES se_project.stations  on DELETE CASCADE on UPDATE CASCADE
