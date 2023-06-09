@@ -19,16 +19,18 @@
                 type: "GET",
                 url: '/api/v1/zones',
 
-                success: function (serverResponse) {
-                    console.log(serverResponse);
+                success: function (data) {
+                    console.log(data);
                     for (let row of data) {
-                        $('#tbody').append(
-                            `<tr>
-                                    <td class="text-center">${row.id}</td>
-                                    <td class="text-center">${row.type}</td>
-                                    <td class="text-center">${row.price}</td>
-                                </tr>`
-                        );
+                       $('#tbody').append(
+                        `<tr>
+                             <td class="text-center">${row.id}</td>
+                             <td class="text-center">${row.zonetype}</td>
+                             <td class="text-center">${row.price}</td>
+                             <td class="text-center">
+                                <button id=${row.id} class="btn btn-primary update" type="button">Update Price</button>
+                             </td>
+                         </tr>`);
                     }
                 },
                 error: function (errorResponse) {
@@ -36,19 +38,46 @@
                         alert(`Cannot View error: ${errorResponse.responseText}`);
                     }
                 }
+                });
+                
+             $('#tbody').on('click', '.update', function () {
+
+            var id = $(this).attr('id');
+            console.log(id);
+
+            var myNewName = prompt("Enter new Price");
+
+
+            $.ajax({
+                type: "PUT",
+                url: `/api/v1/zones/ ${id}`,
+                data: {newprice: myNewName},
+                success: function (data) {
+                    alert(data)
+                },
+                error: function (error) {
+                    alert(error.responseText)
+                }
             });
         });
+
+            
+            
+        });
     </script>
+    <div class="container position-relative">
     <table class="table table-striped">
-        <thread>
-            <tr>
-                <th class="text-center">Zone ID</th>
-                <th class="text-center">Zone Type</th>
-                <th class="text-center">Zone Price</th>
-            </tr>
-        </thread>
+        <thead>
+        <tr>
+            <th class="text-center">ID</th>
+            <th class="text-center">Type</th>
+            <th class="text-center">Price</th>
+        </tr>
+        </thead>
         <tbody id="tbody">
+
         </tbody>
+    </table>
 </body>
 
 </html>

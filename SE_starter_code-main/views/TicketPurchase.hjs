@@ -11,26 +11,25 @@
       $(document).ready(function() {
         $.ajax({
           type: "GET",
-          url: "/api/v1/station", // Replace with your actual endpoint that fetches station data
+          url: "/api/v1/station",
           success: function(response) {
+            console.log("Station data:", response);
             const stationData = response.data;
-            const originDropdown = $("#origin");
-            const destinationDropdown = $("#destination");
-            originDropdown.empty();
-            destinationDropdown.empty();
+           
+          
 
-                    for(let station of stationData){
+                    for(let station in stationData){
         
-                originDropdown.append(
+                $('#origin').append(
                     $("<option>")
-                  .val(station.stationname)
-                  .text(station.stationname)
+                  .val(stationData[station][0])
+                  .text(stationData[station][1])
               );
 
-              destinationDropdown.append(
+              $('#destination').append(
                     $("<option>")
-                  .val(station.stationname)
-                  .text(station.stationname)
+                  .val(stationData[station][0])
+                  .text(stationData[station][1])
               );
             };
           },
