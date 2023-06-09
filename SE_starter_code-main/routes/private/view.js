@@ -145,4 +145,7 @@ module.exports = function(app) {
     const user = await getUser(req);
     return res.render('req_refund',{user});
   });
+  app.get('/Simulate_Ride',async function(req,res){
+    return res.render('Simulate_Ride');
+  });
 };

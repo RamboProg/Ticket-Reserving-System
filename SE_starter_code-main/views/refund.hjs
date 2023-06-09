@@ -88,18 +88,33 @@
 
     });
 </script>
-<div>
-    <nav class="navbar navbar-inverse" style="padding-left:130px;">
-        <ul class="nav navbar-nav">
+  <nav class="navbar navbar-inverse" style="padding-left:130px;">
+          <ul class="nav navbar-nav">
             <li class="active"><a href="/dashboard">Home</a></li>
             <li><a href="/manage_stations">Station</a></li>
             <li><a href="/users">Users</a></li>
-            <li><a href="/users/add">Add Users</a></li>
-            <li><a href="/resetPassword">Reset Password</a></li>
+            <li><a href="/add-user">Add Users</a></li>
+            <li><a href = "/subscriptions">View Subscriptions</a></li>
+            <li><a href ="/subscriptionPurchase">Buy a Subscription</a></li>
+            <li><a href = "/resetPassword">Reset Password</a></li>
+            <li> <a href= "/senior">Request Senior</a></li>
+            <li><a href="/rides">View Rides</a></li>
+            <li><a href="/manage_route"> Routes</a></li>
+            <li><a href = "/seniorReq"> Manage Senior Requests</a></li>
+            <li><a href = "/senior"> Request Seniorship</a></li>
+            <li><a href = "/mngZones">Manage Zones</a></li>
+            <li><a href = "/Simulate_Ride">Simulate a Ride</a></li>
+            <li><a href = 'req_refund'> Requset Refund</a></li>
             <li><a href="/">Logout</a></li>
-        </ul>
-    </nav>
-</div>
+             <div class="dropdown">
+              <span>Buy Ticket</span>
+              <div class="dropdown-content">
+              <a href="/TicketPurchase">Online</a>
+              <a href="/TicketPurchaseSubscription">Subscription</a>
+           </div>
+          </div>
+          </ul>
+       </nav>
 
 <div class="container position-relative">
     <table class="table table-striped">

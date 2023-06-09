@@ -11,11 +11,10 @@
 
     <script>
         $(document).ready(function(){
-
+            const  tickid = $("#Ticket_ID").val();
             $.ajax({
-                $.ajax({
           type: "GET",
-          url: "/api/v1/zones",
+          url: "/api/v1/rides",
           success: function(data) {
             console.log('data', data);
             for (let row of data) {
@@ -23,8 +22,13 @@
               $('#tbody').append(`
                 <tr>
                   <td class="text-center">${row.id}</td>
-                  <td class="text-center">${row.zonetype}</td>
-                  <td class="text-center">${row.price}</td>
+                  <td class="text-center">${row.status}</td>
+                  <td class="text-center">${row.origin}</td>
+                  <td class="text-center">${row.destination}</td>
+                  <td class="text-center">${row.userid}</td>
+                  <td class="text-center">${row.ticketid}</td>
+                  <td class="text-center">${row.tripdate}</td>
+                  <button id=${row.id} class="btn btn-primary update" type="button">Request Refund</button>
                 </tr>
               `);
             }
@@ -36,12 +40,12 @@
         });
           $('#tbody').on('click', '.update', function () {
 
-            var id = $(this).attr('id');
+            var id = $(this).attr('ticketid');
             console.log(id);
 
             $.ajax({
                 type: "PUT",
-                url: `/api/v1/requests/refunds/ ${id}`,
+                url: `/api/v1/refund/ ${id}`,
                 success: function (data) {
                     alert(data)
                 },
@@ -52,30 +56,45 @@
         });
             });
             
-        });
     </script>
-    <div>
-    <nav class="navbar navbar-inverse" style="padding-left:130px;">
-        <ul class="nav navbar-nav">
+     <nav class="navbar navbar-inverse" style="padding-left:130px;">
+          <ul class="nav navbar-nav">
             <li class="active"><a href="/dashboard">Home</a></li>
             <li><a href="/manage_stations">Station</a></li>
             <li><a href="/users">Users</a></li>
-            <li><a href="/users/add">Add Users</a></li>
-            <li><a href="/resetPassword">Reset Password</a></li>
+            <li><a href="/add-user">Add Users</a></li>
+            <li><a href = "/subscriptions">View Subscriptions</a></li>
+            <li><a href ="/subscriptionPurchase">Buy a Subscription</a></li>
+            <li><a href = "/resetPassword">Reset Password</a></li>
+            <li> <a href= "/senior">Request Senior</a></li>
+            <li><a href="/rides">View Rides</a></li>
+            <li><a href="/manage_route"> Routes</a></li>
+            <li><a href = "/seniorReq"> Manage Senior Requests</a></li>
+            <li><a href = "/senior"> Request Seniorship</a></li>
+            <li><a href = "/mngZones">Manage Zones</a></li>
+            <li><a href = "/Simulate_Ride">Simulate a Ride</a></li>
+            <li><a href = 'req_refund'> Requset Refund</a></li>
             <li><a href="/">Logout</a></li>
-        </ul>
-    </nav>
-</div>
+             <div class="dropdown">
+              <span>Buy Ticket</span>
+              <div class="dropdown-content">
+              <a href="/TicketPurchase">Online</a>
+              <a href="/TicketPurchaseSubscription">Subscription</a>
+           </div>
+          </div>
+          </ul>
+       </nav>
 
 <div class="container position-relative">
     <table class="table table-striped">
         <thead>
         <tr>
             <th class="text-center">ID</th>
+            <th class="text-center">Status</th>
             <th class="text-center">Origin</th>
             <th class="text-center">Destination</th>
             <th class="text-center">User ID</th>
-            <th class="text-center">Sub ID</th>
+            <th class="text-center">Ticket ID</th>
             <th class="text-center"> Trip Date</th>
 
         </tr>
@@ -83,7 +102,14 @@
         <tbody id="tbody">
 
         </tbody>
-    </table>
 
+    </table>
+     <div class="form-group">
+          <label for="tripDate" class="col-sm-2 control-label">Insert Ticket ID</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="Ticket_ID" name="tripDate" placeholder="Ticket ID" value="">
+          </div>
+        </div>
+    <button class="btn btn-primary" type="button" id ="Request">Request Refund</button>
   </body>
 </html>

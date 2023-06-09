@@ -305,9 +305,9 @@ module.exports = function (app) {
           }
         }
       }
-        
+        const deletedStation = await db("se_project.stations").where("id",StationId).del().returning("*");
         console.log("Deleted", selectedStation);
-        return res.status(200).json(selectedStation);
+        return res.status(200).json(deletedStation);
         
     }catch(err){
       console.log("Error message ",err.message);
