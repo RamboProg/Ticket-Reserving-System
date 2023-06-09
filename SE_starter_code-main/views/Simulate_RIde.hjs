@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+    <link rel='stylesheet' href='/styles/bootstrap.min.css' />
+    <link rel='stylesheet' href='/styles/style.css' />
+    <script src="/js/jquery-2.2.0.min.js" type="text/javascript"></script>
+    <script src="/js/bootstrap.min.js" type="text/javascript"></script>
+    </head>
+        <body>
+  <nav class="navbar navbar-inverse" style="padding-left:130px;">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="/dashboard">Home</a></li>
+            <li><a href="/manage_stations">Station</a></li>
+            <li><a href="/users">Users</a></li>
+            <li><a href="/add-user">Add Users</a></li>
+            <li><a href = "/subscriptions">View Subscriptions</a></li>
+            <li><a href ="/subscriptionPurchase">Buy a Subscription</a></li>
+            <li><a href = "/resetPassword">Reset Password</a></li>
+            <li> <a href= "/senior">Request Senior</a></li>
+            <li><a href="/rides">View Rides</a></li>
+            <li><a href="/manage_route"> Routes</a></li>
+            <li><a href = "/seniorReq"> Manage Senior Requests</a></li>
+            <li><a href = "/senior"> Request Seniorship</a></li>
+            <li><a href = "/mngZones">Manage Zones</a></li>
+            <li><a href = "/Simulate_Ride">Simulate a Ride</a></li>
+            <li><a href = 'req_refund'> Requset Refund</a></li>
+            <li><a href="/">Logout</a></li>
+             <div class="dropdown">
+              <span>Buy Ticket</span>
+              <div class="dropdown-content">
+              <a href="/TicketPurchase">Online</a>
+              <a href="/TicketPurchaseSubscription">Subscription</a>
+           </div>
+          </div>
+          </ul>
+       </nav>
+            <script>
+                $(document).ready(function () {
+                    const origin = $("#origin").val();
+                    const destination = $("#destination").val();
+                    const tripdate = $("#tripdate").val();
+
+                    $.ajax({
+                        type: "PUT",
+                        url: '/api/v1/ride/simulate',
+                        data: {
+                            Origin: origin,
+                            Destination: destination,
+                            tripDate: tripdate
+                        },
+                        sucess: function(data){
+                            console.log(data);
+                        },error: function(error){
+                            console.log(error);
+                        }
+
+                    });
+
+
+                });
+            </script>
+            
+  <div class="form-group">
+          <label for="password" class="col-sm-2 control-label">Origin</label>
+          <div class="col-sm-10">
+              <input type="password" class="form-control" id="origin" name="newpassword" placeholder="origin" value="">
+          </div>
+      </div>
+        <div class="form-group">
+          <label for="password" class="col-sm-2 control-label">Destination</label>
+          <div class="col-sm-10">
+              <input type="password" class="form-control" id="destination" name="newpassword" placeholder="destination" value="">
+          </div>
+      </div>
+        <div class="form-group">
+          <label for="password" class="col-sm-2 control-label">Trip Date</label>
+          <div class="col-sm-10">
+              <input type="password" class="form-control" id="tripdate" name="newpassword" placeholder="tripdate" value="">
+          </div>
+      </div>
+
+        </body>
+
+
+
+</html>
