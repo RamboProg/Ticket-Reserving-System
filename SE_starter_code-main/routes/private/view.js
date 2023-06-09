@@ -1,3 +1,4 @@
+const { user } = require('pg/lib/defaults');
 const db = require('../../connectors/db');
 const roles = require('../../constants/roles');
 const { getSessionToken } = require('../../utils/session');
@@ -26,21 +27,28 @@ const getUser = async function(req) {
 module.exports = function(app) {
   // Register HTTP endpoint to render /users page
   app.get('/dashboard', async function(req, res) {
+    
     const user = await getUser(req);
     return res.render('dashboard', user);
   });
-
   // Register HTTP endpoint to render /users page
   app.get('/users', async function(req, res) {
+    const user = getUser(req);
+    if (!user.isAdmin) {
+      return res.status(301).redirect('/dashboard');
+    }
     const users = await db.select('*').from('se_project.users');
     return res.render('users', { users });
   });
 
   // Register HTTP endpoint to render /courses page
-  app.get('/stations_example', async function(req, res) {
+  app.get('/manage_stations', async function(req, res) {
     const user = await getUser(req);
-    const stations = await db.select('*').from('se_project.stations');
-    return res.render('stations_example', { ...user, stations });
+    if (!user.isAdmin) {
+      return res.status(301).redirect('/dashboard');
+    }
+    //const stations = await db.select('*').from('se_project.stations');
+    return res.render('manage_stations', { ...user});
   });
   app.get('/subscriptions', async function(req, res) {
     const user  =await getUser(req);
@@ -68,8 +76,18 @@ module.exports = function(app) {
   });
   app.get('/manage_stations',async function(req,res){
     const user = await getUser(req);
+    if (!user.isAdmin) {
+      return res.status(301).redirect('/dashboard');
+    }
     return res.render('manage_Stations',{user});
   })
+  app.get('/manage_route',async function(req,res){
+    const user = await getUser(req);
+    if (!user.isAdmin) {
+      return res.status(301).redirect('/dashboard');
+    }
+    return res.render('manage_route',{user});
+  });
   app.get('/refund',async function(req,res){
     const user = await getUser(req);
     return res.render('refund',{user});
@@ -79,6 +97,55 @@ module.exports = function(app) {
     return res.render('senior',{user});
   });
   app.get('/TicketPurchaseSubscription',async function(req,res){
-    return res.render('TicketPurchaseSubscription');
+    const user = await getUser(req);
+    return res.render('TicketPurchaseSubscription',user);
+  });
+  app.get("/add-user",  async function(req, res) {
+    const user = await getUser(req);
+    if (!user.isAdmin) {
+      return res.status(301).redirect('/dashboard');
+    }
+    return res.render('add-user', user);
+  });
+  app.get("/rides", async function(req, res) {
+    const rides = await db.select('*').from('se_project.rides');
+    return res.render('rides', { rides });
+
+
+  });
+  app.get("/CreateRoute", async function(req, res) {
+    const user = await getUser(req);
+    if (!user.isAdmin) {
+      return res.status(301).redirect('/dashboard');
+    }
+    return res.render('CreateRoute');
+  });
+  app.get("/mngZones", async function(req, res) {
+    const user = await getUser(req);
+    if (!user.isAdmin) {
+      return res.status(301).redirect('/dashboard');
+    }
+    return res.render('mngZones');
+  });
+  app.get("/seniorReq", async function(req, res) {
+    const user = await getUser(req);
+    if (!user.isAdmin) {
+      return res.status(301).redirect('/dashboard');
+    }
+    return res.render('seniorReq',user);
+  });
+  app.get('/edit_station',async function(req,res){
+    const user = await getUser(req);
+    if (user.isAdmin) {
+      return res.status(301).redirect('/dashboard');
+    }
+    return res.render('edit_station',{user});
+  });
+  app.get('/req_refund',async function(req,res){
+    const user = await getUser(req);
+    return res.render('req_refund',{user});
+  });
+  app.get('/Simulate_Ride',async function(req,res){
+    return res.render('Simulate_Ride');
   });
 };
