@@ -24,22 +24,21 @@
 
         $.ajax({
             type: "GET",
-            url: '/api/v1/requests/refunds',
+            url: '/api/v1/route',
             success: function (data) {
                 console.log(data)
                 for (let row of data) {
                     $('#tbody').append(
                         `<tr>
                              <td class="text-center">${row.id}</td>
-                             <td class="text-center">${row.status}</td>
-                             <td class="text-center">${row.userid}</td>
-                             <td class="text-center">${row.refundamount}</td>
-                             <td class="text-center">${row.ticketid}</td>
+                             <td class="text-center">${row.routename}</td>
+                             <td class="text-center">${row.fromstaionid}</td>
+                             <td class="text-center">${row.tostaionid}</td>
                              <td class="text-center">
-                                 <button id=${row.id} class="btn btn-primary update" type="button">Accept </button>
+                                 <button id=${row.id} class="btn btn-primary update" type="button">Update Name</button>
                              </td>
                              <td class="text-center">
-                                 <button id=${row.id} class="btn btn-danger remove" type="button">Reject</button>
+                                 <button id=${row.id} class="btn btn-danger remove" type="button">Remove</button>
                              </td>
                          </tr>`);
                 }
@@ -55,7 +54,7 @@
             var id = $(this).attr('id');
             $.ajax({
                 type: "DELETE",
-                url: '/api/v1/requests/refunds/' +`${id}`,
+                url: '/api/v1/route/' + `${id}`,
                 success: function (data) {
                     alert(data)
                 },
@@ -70,13 +69,13 @@
             var id = $(this).attr('id');
             console.log(id);
 
-            var Status = prompt("Enter Satus").val();
+            var myNewName = prompt("Enter new Station Name");
 
 
             $.ajax({
                 type: "PUT",
-                url: '/api/v1/requests/refunds/' + `${id}`,
-                data: {status: Status},
+                url: `/api/v1/route/ ${id}`,
+                data: {stationname: myNewName},
                 success: function (data) {
                     alert(data)
                 },
@@ -121,16 +120,17 @@
         <thead>
         <tr>
             <th class="text-center">ID</th>
-            <th class="text-center">Status</th>
-            <th class="text-center">User ID</th>
-            <th class="text-center">Refund Amount</th>
-            <th class="text-center">TicketID</th>
+            <th class="text-center">Route Name</th>
+            <th class="text-center">From Station ID</th>
+            <th class="text-center">To Station ID</th>
         </tr>
         </thead>
         <tbody id="tbody">
 
         </tbody>
     </table>
+
+    <button id="Create" class="btn btn-secondary create-button" type="button" ><a href = "/CreateRoute">Create New Route</a></button>
 </div>
 
 </body>
