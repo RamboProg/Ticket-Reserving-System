@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS se_project.roles
 CREATE TABLE IF NOT EXISTS se_project.zones
 (
     id SERIAL NOT NULL,
-    zonetype text NOT NULL, -- 9 stations/ 10-16/16
+    zonetype text NOT NULL, -- 9/5,  10-16/7, >16/10
     price INTEGER NOT NULL,
     CONSTRAINT zones_pkey PRIMARY KEY (id)
 

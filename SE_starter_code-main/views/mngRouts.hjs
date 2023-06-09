@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <head>
+      <title>Manage Routes</title>
+      <link rel="stylesheet" href="/styles/bootstrap.min.css" />
+      <link rel="stylesheet" href="/styles/style.css" />
+      <script src="/js/jquery-2.2.0.min.js" type="text/javascript"></script>
+      <script src="/js/bootstrap.min.js" type="text/javascript"></script>
+    </head>
+  </head>
+  <body>
+    <script>
+        $(document).ready(function(){
+            $.ajax({
+                type: "PUT",
+                url: '/api/v1/route/:routeId',
+
+                success: function(serverResponse){
+                    console.log(serverResponse);
+                    for(let row of data){
+                        $('#tbody').append(
+                            `<tr>
+                                <td class="text-center">${row.routeId}</td>
+                                <td class="text-center">${row.routeName}</td>
+                                <td class="text-center">${row.fromStationid}</td>
+                                <td class="text-center">${row.toStationid}</td>
+                            </tr>`
+                        );
+                    }
+                },
+                error: function(errorResponse){
+                    if(errorResponse){
+                        alert(`Cannot View error: ${errorResponse.responseText}`);
+                    }
+                }
+            });
+        });
+    </script>
+    <table class="table table-striped">
+        <thread>
+            <tr>
+                <th class="text-center">Route ID</th>
+                <th class="text-center">Route Name</th>
+                <th class="text-center">From Station</th>
+                <th class="text-center">To Station</th>
+            </tr>
+        </thread>
+        <tbody id="tbody">
+        </tbody>
+    </table>
+  </body>
+</html>
