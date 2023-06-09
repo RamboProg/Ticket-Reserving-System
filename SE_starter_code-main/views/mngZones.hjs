@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <head>
+        <title>Manage Zones</title>
+        <link rel="stylesheet" href="/styles/bootstrap.min.css" />
+        <link rel="stylesheet" href="/styles/style.css" />
+        <script src="/js/jquery-2.2.0.min.js" type="text/javascript"></script>
+        <script src="/js/bootstrap.min.js" type="text/javascript"></script>
+    </head>
+</head>
+
+<body>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                type: "GET",
+                url: '/api/v1/zones',
+
+                success: function (serverResponse) {
+                    console.log(serverResponse);
+                    for (let row of data) {
+                        $('#tbody').append(
+                            `<tr>
+                                    <td class="text-center">${row.id}</td>
+                                    <td class="text-center">${row.type}</td>
+                                    <td class="text-center">${row.price}</td>
+                                </tr>`
+                        );
+                    }
+                },
+                error: function (errorResponse) {
+                    if (errorResponse) {
+                        alert(`Cannot View error: ${errorResponse.responseText}`);
+                    }
+                }
+            });
+        });
+    </script>
+    <table class="table table-striped">
+        <thread>
+            <tr>
+                <th class="text-center">Zone ID</th>
+                <th class="text-center">Zone Type</th>
+                <th class="text-center">Zone Price</th>
+            </tr>
+        </thread>
+        <tbody id="tbody">
+        </tbody>
+</body>
+
+</html>

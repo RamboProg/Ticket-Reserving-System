@@ -1,0 +1,56 @@
+{{!-- works --}}
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <link rel='stylesheet' href='/styles/bootstrap.min.css' />
+      <link rel='stylesheet' href='/styles/style.css' />
+      <script src="/js/jquery-2.2.0.min.js" type="text/javascript"></script>
+      <script src="/js/bootstrap.min.js" type="text/javascript"></script>
+    </head>
+    <body>
+        <script>
+             $(document).ready(function(){
+                $.ajax({
+
+                    type :"GET",
+                    url :"/api/v1/subscription",
+                    
+                    success: function (data) {
+                     console.log(data);
+                     console.log("zaid");
+                     for(let row of data){
+                    $('#tbody').append(
+                      `<tr>
+                     <td class="text-center">${row.id}</td>
+                          <td class="text-center">${row.subtype}</td>
+                          <td class="text-center">${row.zoneid}</td>
+                          <td class="text-center">${row.userid}</td>
+                          <td class="text-center">${row.nooftickets}</td>
+                    </tr>`);
+                     }
+                     },
+                    error: function (error) {
+                        alert(error)
+                        console.log("error message", error.responseText);
+        }
+      });
+
+                });
+        </script>
+        <table class="table table-striped">
+      <thead>
+        <tr>
+          <th class="text-center">Subscription ID</th>
+          <th class="text-center">Subscription Type </th>
+          <th class="text-center">Zone ID</th>
+          <th class="text-center">User ID </th>
+          <th class="text-center">Number Of Tickets</th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+
+      </tbody>
+    </table>
+    </body>
+</html>

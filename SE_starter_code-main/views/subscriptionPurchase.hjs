@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="/styles/bootstrap.min.css" />
+    <link rel="stylesheet" href="/styles/style.css" />
+    <script src="/js/jquery-2.2.0.min.js" type="text/javascript"></script>
+    <script src="/js/bootstrap.min.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <script>
+      $(document).ready(function() {
+        $.ajax({
+          type: "GET",
+          url: "/api/v1/zones",
+          success: function(data) {
+            console.log('data', data);
+            for (let row of data) {
+              console.log('row', row);
+              $('#tbody').append(`
+                <tr>
+                  <td class="text-center">${row.id}</td>
+                  <td class="text-center">${row.zonetype}</td>
+                  <td class="text-center">${row.price}</td>
+                </tr>
+              `);
+            }
+          },
+          error: function(error) {
+            alert(error);
+            console.log("error message", error.responseText);
+          }
+        });
+
+        $("#purchase").click(function() {
+          console.log("1e31");
+          const creditCardNumber = $('#creditcard').val();
+          const holderName = $('#holdersname').val();
+          const payedAmount = $('#amount').val();
+          const subType = $('#subscriptiontype').val();
+          const zoneId = $('#zoneId').val();
+          const data = {
+            payedAmount,
+            subType,
+            zoneId,
+          };
+          $.ajax({
+            type: "POST",
+            url: "/api/v1/payment/subscription",
+            data,
+            success: function(data) {
+              $('#creditcard').val("");
+              $('#holdersname').val("");
+              $('#amount').val("");
+              $('#subscriptiontype').val("");
+              $('#zoneId').val("");
+              alert("hi");
+            }
+          });
+        });
+      });
+    </script>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th class="text-center">Zone ID</th>
+          <th class="text-center">Zone Type</th>
+          <th class="text-center">Price</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div style="padding-left: 400px">
+      <form class="form-horizontal" style="width: 50%;">
+        <div class="form-group">
+          <label for="creditcard" class="control-label col-sm-2">Credit Card</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="creditcard" name="creditcard" placeholder="Credit Card Number" value="">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="holdersname" class="control-label col-sm-2">Holder's Name</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="holdersname" name="holdersname" placeholder="Holder's Name" value="">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="amount" class="control-label col-sm-2">Amount</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="amount" name="amount" placeholder="Amount" value="">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="zoneId" class="control-label col-sm-2">Zone ID</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="zoneId" name="zoneId" placeholder="Zone ID" value="">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="subscriptiontype" class="control-label col-sm-2">Select type of subscription:</label>
+          <div class="col-sm-10">
+            <select name="subscription type" id="subscriptiontype" class="form-control">
+              <option value="annual">Annual</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-10 col-sm-offset-2">
+            <input id="purchase" name="purchase" type="button" value="Pay" class="btn btn-secondary">
+          </div>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
