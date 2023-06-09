@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Create Station</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("form").on("submit", function (event) {
+          event.preventDefault();
+          const stationName = $("#stationName").val();
+          const stationType = $("#stationType").val();
+          const stationPosition = $("#stationPosition").val();
+          const stationStatus = $("#stationStatus").val();
+          $.ajax({
+            url: "/api/v1/station",
+            method: "POST",
+            data: {
+              stationName,
+              stationType,
+              stationPosition,
+              stationStatus,
+            },
+            success: function (data) {
+              console.log(data);
+            },
+          });
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Create Station</h1>
+    <form>
+      <label for="stationName">Station Name:</label><br />
+      <input type="text" id="stationName" name="stationName" required /><br />
+      <label for="stationType">Station Type:</label><br />
+      <select id="stationType" name="stationType">
+        <option value="Normal">Normal</option>
+        <option value="Transfer">Transfer</option>
+      </select><br />
+      <label for="stationPosition">Station Position:</label><br />
+      <select id="stationPosition" name="stationPosition">
+        <option value="">Select Position</option>
+        <option value="Start">Start</option>
+        <option value="Middle">Middle</option>
+        <option value="End">End</option>
+      </select><br />
+      <label for="stationStatus">Station Status:</label><br />
+      <select id="stationStatus" name="stationStatus">
+        <option value="New">New</option>
+        <option value="Created">Created</option>
+      </select><br />
+      <input type="submit" value="Submit" />
+    </form>
+  </body>
+</html>

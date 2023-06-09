@@ -283,6 +283,7 @@ module.exports = function (app) {
   });
 
 
+
 //Check this with Zaid 
   app.delete("/api/v1/station/:stationId", async(req,res)=>{
     try{
@@ -417,7 +418,6 @@ app.post("/api/v1/payment/ticket",async(req,res)=>{
       userid:user.id,
       purchasediid:purchasedId,
     }
-
     const ticketlol=await db("se_project.tickets").insert(ticket).returning("*");
     const transactionlol=await db("se_project.transactions").insert(transaction).returning("*");
     console.log(ticketlol);
@@ -533,4 +533,5 @@ app.post("/api/v1/payment/ticket",async(req,res)=>{
 
   
   
+
 
