@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <head>
+        <title>Senior Citizen Requests</title>
+        <link rel="stylesheet" href="/styles/bootstrap.min.css" />
+        <link rel="stylesheet" href="/styles/style.css" />
+        <script src="/js/jquery-2.2.0.min.js" type="text/javascript"></script>
+        <script src="/js/bootstrap.min.js" type="text/javascript"></script>
+    </head>
+</head>
+
+<body>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                type: "PUT",
+                url: '/api/v1/requests/senior/:requestId',
+
+                success: function (serverResponse) {
+                    console.log(serverResponse);
+                    for (let row of data) {
+                        $('#tbody').append(
+                            `<tr>
+                                    <td class="text-center">${row.id}</td>
+                                    <td class="text-center">${row.status}</td>
+                                    <td class="text-center">${row.userid}</td>
+                                    <td class="text-center">${row.nationalid}</td>
+                                </tr>`
+                        );
+                    }
+                },
+                error: function (errorResponse) {
+                    if (errorResponse) {
+                        alert(`Cannot View Senior Requests error: ${errorResponse.responseText}`);
+                    }
+                }
+            });
+            $('#tbody').on('Click', '.refuse'.function(){
+                console.log('refuse request');
+                var id = $(this).attr('data-id');
+                $.ajax({
+                    type: "PUT",
+                    url: '/api/v1/requests/senior/:requestId',
+                    success: function(serverResponse){
+                        console.log(serverResponse);
+                        alert('Senior Request Refused');
+                    },
+                    error: function(errorResponse){
+                        if(errorResponse){
+                            alert(`Cannot Refuse Senior Request error: ${errorResponse.responseText}`);
+                        }
+                    }
+                });
+            });
+        });
+        $('#tbody').on('Click', '.approve'.function(){
+            console.log('approve request');
+            var id = $(this).attr('data-id');
+            $.ajax({
+                type: "PUT",
+                url: '/api/v1/requests/senior/:requestId',
+                success: function(serverResponse){
+                    console.log(serverResponse);
+                    alert('Senior Request Approved');
+                },
+                error: function(errorResponse){
+                    if(errorResponse){
+                        alert(`Cannot Approve Senior Request error: ${errorResponse.responseText}`);
+                    }
+                }
+            });
+        });
+    </script>
+    <table class="table table-striped">
+        <thread>
+            <tr>
+                <th class="text-center">Request ID</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">User ID</th>
+                <th class="text-center">National ID</th>
+            </tr>
+        </thread>
+        <tbody id="tbody">
+        </tbody>
+</body>
+
+</html>
