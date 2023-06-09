@@ -485,8 +485,73 @@ app.delete('/api/v1/route/:routeId', async (req, res) => {
     }else if (to_staion_Id_properties.stationposition ==="start" && to_staion_Id_properties.stationtype==="normal"){
 
       const anotherRoute = await db("se_project.routes").where("fromstationid",to_Staion_Id).where("tostationid",from_Staion_Id).select("id").first();
-     
+      if(anotherRoute){
+        const deleteRoute = await db("se_project.routes").where("id", routeId).del();
+        const deletedRouteStation = await db("se_project.stationroutes").where("routeid", routeId).del();
+        return res.status(200).send('Route deleted successfully',deleteRoute);
+    }else{
+      await db ("se_project.stations").where("id",from_Staion_Id).update({stationposition:"start"});
+      const deleteRouteA = await db("se_project.routes").where("id", routeId).del();
+      const deletedRouteStationB = await db("se_project.stationroutes").where("routeid", routeId).del();
+      await db ("se_project.stations").where("id",to_Staion_Id).update({stationstatus:"inactive"});
+
+      return res.status(200).send('Route deleted successfully',deleteRouteA);
     }    
+  }else if (from_staion_Id_properties.stationposition==="end" && from_staion_Id_properties.stationtype==="normal"){
+    const anotherRoute = await db("se_project.routes").where("fromstationid",to_Staion_Id).where("tostationid",from_Staion_Id).select("id").first();
+    if(anotherRoute){
+      const deleteRoute = await db("se_project.routes").where("id", routeId).del();
+      const deletedRouteStation = await db("se_project.stationroutes").where("routeid", routeId).del();
+      return res.status(200).send('Route deleted successfully',deleteRoute);
+
+  }else{
+    await db ("se_project.stations").where("id",to_Staion_Id).update({stationposition:"end"});
+    const deleteRouteA = await db("se_project.routes").where("id", routeId).del();
+    const deletedRouteStationB = await db("se_project.stationroutes").where("routeid", routeId).del();
+    await db ("se_project.stations").where("id",from_Staion_Id).update({stationstatus:"inactive"});
+
+    return res.status(200).send('Route deleted successfully',deleteRouteA);
+  }
+}else if (to_staion_Id_properties.stationposition==="end" && to_staion_Id_properties.stationtype==="normal"){
+  const anotherRoute = await db("se_project.routes").where("fromstationid",to_Staion_Id).where("tostationid",from_Staion_Id).select("id").first();
+  if(anotherRoute){
+    const deleteRoute = await db("se_project.routes").where("id", routeId).del();
+    const deletedRouteStation = await db("se_project.stationroutes").where("routeid", routeId).del();
+    return res.status(200).send('Route deleted successfully',deleteRoute);
+  }else{
+    await db ("se_project.stations").where("id",from_Staion_Id).update({stationposition:"end"});
+    const deleteRouteA = await db("se_project.routes").where("id", routeId).del();
+    const deletedRouteStationB = await db("se_project.stationroutes").where("routeid", routeId).del();
+    await db ("se_project.stations").where("id",to_Staion_Id).update({stationstatus:"inactive"});
+
+    return res.status(200).send('Route deleted successfully',deleteRouteA);
+  }
+  } else if (from_staion_Id_properties.stationposition ==="middle" || from_staion_Id_properties.stationtype==="transfer"){
+    const anotherRoute = await db("se_project.routes").where("fromstationid",to_Staion_Id).where("tostationid",from_Staion_Id).select("id")
+    if(anotherRoute>0){
+      const deleteRoute = await db("se_project.routes").where("id", routeId).del();
+      const deletedRouteStation = await db("se_project.stationroutes").where("routeid", routeId).del();
+    }else{
+      const deleteRouteA = await db("se_project.routes").where("id", routeId).del();
+      const deletedRouteStationB = await db("se_project.stationroutes").where("routeid", routeId).del();
+      await db ("se_project.stations").where("id",from_Staion_Id).update({stationstatus:"inactive"});
+
+      return res.status(200).send('Route deleted successfully',deleteRouteA);
+      
+    }
+  }else if (to_staion_Id_properties.stationposition ==="middle" || to_staion_Id_properties.stationtype==="transfer"){
+    const anotherRoute = await db("se_project.routes").where("fromstationid",to_Staion_Id).where("tostationid",from_Staion_Id).select("id")
+    if(anotherRoute>0){
+      const deleteRoute = await db("se_project.routes").where("id", routeId).del();
+      const deletedRouteStation = await db("se_project.stationroutes").where("routeid", routeId).del();
+    }else{
+      const deleteRouteA = await db("se_project.routes").where("id", routeId).del();
+      const deletedRouteStationB = await db("se_project.stationroutes").where("routeid", routeId).del();
+      await db ("se_project.stations").where("id",from_Staion_Id).update({stationstatus:"inactive"});
+
+      return res.status(200).send('Route deleted successfully',deleteRouteA);
+    }
+  } 
 
     return res.status(200).send('Route deleted successfully');
   } catch (e) {
